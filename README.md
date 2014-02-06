@@ -10,7 +10,7 @@ TIF is one of the fastest and the smallest program among analysis programs of ne
 
 ### Static data
 
-for Tos17 retrotransposon of rice
+For Tos17 retrotransposon of rice
 
       Head of Tos17: TGTTAAATATATATACA
       Tail of Tos17: TTGCAAGTTAGTTAAGA
