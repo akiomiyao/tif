@@ -31,7 +31,7 @@
 # SUCH DAMAGE.
 #
 #
-# Version 1.0
+# Version 1.1
 #
 
 #tos17
@@ -51,14 +51,14 @@ $blast_command = "blastall -p blastn -d ./blast/IRGSP1.0 -m 8 -b 1"; # legacy bl
 #$tail = "CCTTATGTTATTTCATCATG"; 
 #$head = "CATGATGAAATAACATA"; # 17 base
 #$tail = "TATGTTATTTCATCATG";
-#$tsd_size = 8;
+
 #$file_list = "read/SRR823377_?.fastq"; # for D. melanogaster
 #$file_list = "read/SRR823382_?.fastq"; # for D. melanogaster
 
 #$blast_command = "blastall -p blastn -d ./blast/dmel-r5.55 -m 8 -b 1"; # legacy blast
 #$blast_command = "~/ncbi-blast-2.2.29+/bin/blastn -db ./blast/dmel-r5.55 -outfmt 6 -num_alignments 1"; # blast plus
 
-$hsize = length($head);
+$tsize = length($tail);
 
 $s = {};
 
@@ -79,7 +79,7 @@ open(IN, "cat $file_list |grep $tail |");
 while(<IN>){
     chomp;
     $pos = index($_, $tail);
-    $downstream = substr($_, $pos + $hsize, 100);
+    $downstream = substr($_, $pos + $tsize, 100);
     if (length($downstream) > 20){
         $junction = substr($downstream, 0, 20);
         if (length($downstream) > length($tail{$junction})){
@@ -122,7 +122,7 @@ foreach $chr (sort keys %{$s->{head}}){
     foreach $head (sort bynumber keys %{$s->{head}{$chr}}){
         foreach $tail (sort bynumber keys %{$s->{tail}{$chr}}){
             $tsd_size = abs($tail - $head) +1;
-            if ($tsd_size < 12 and $tsd_size > 1){
+            if ($tsd_size < 10 and $tsd_size > 1){
                 $seq = (split('_', $s->{head}{$chr}{$head}))[0];
                 $tsd_head = substr($seq, length($seq) - $tsd_size, $tsd_size);
                 $seq = (split('_', $s->{tail}{$chr}{$tail}))[0];
