@@ -102,8 +102,8 @@ The tif_extended.pl returns both tif.fasta and tif.position files.
 
 ### Citing TIF
 
-- Transposon Insertion Finder (TIF): a novel program for detection of de novo transpositions of transposon (2014) .
-
+- Cite this article as: Nakagome M, Solovieva E, Takahashi A, Yasue H, Hirochika H, Miyao A (2014) Transposon Insertion Finder (TIF): a novel program for detection of de novo transpositions of transposable elements. BMC Bioinformatics 5:71.
+- doi:10.1186/1471-2105-15-71
 
 ### Update
 
