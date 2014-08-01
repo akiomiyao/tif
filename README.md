@@ -28,28 +28,28 @@ For P-element of Drosophila melanogaster
 
 Download sra tool kit from
 
-      http://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&f=software&m=software&s=software
+      http://www.ncbi.nlm.nih.gov/Traces/sra/?view=software
 
 In your home directory,
 
-      tar xvfz sratoolkit.2.3.4-2-centos_linux64.tar.gz
+      tar xvfz sratoolkit.2.3.5-2-centos_linux64.tar.gz
 
 For ttm2 (Rice mutant)
 
         cd tif/read
-        ~/sratoolkit.2.3.4-2-centos_linux64/bin/fastq-dump --split-files -A SRR556173
+        ~/sratoolkit.2.3.5-2-centos_linux64/bin/fastq-dump --split-files -A SRR556173
     
 For ttm5 (Rice mutant)
 
         cd tif/read
-        ~/sratoolkit.2.3.4-2-centos_linux64/bin/fastq-dump --split-files -A SRR556174
-        ~/sratoolkit.2.3.4-2-centos_linux64/bin/fastq-dump --split-files -A SRR556175
+        ~/sratoolkit.2.3.5-2-centos_linux64/bin/fastq-dump --split-files -A SRR556174
+        ~/sratoolkit.2.3.5-2-centos_linux64/bin/fastq-dump --split-files -A SRR556175
     
 For D. melanogaster
 
         cd tif/read
-        ~/sratoolkit.2.3.4-2-centos_linux64/bin/fastq-dump --split-files -A SRR823377
-        ~/sratoolkit.2.3.4-2-centos_linux64/bin/fastq-dump --split-files -A SRR823382
+        ~/sratoolkit.2.3.5-2-centos_linux64/bin/fastq-dump --split-files -A SRR823377
+        ~/sratoolkit.2.3.5-2-centos_linux64/bin/fastq-dump --split-files -A SRR823382
 
 
 
@@ -107,4 +107,5 @@ The tif_extended.pl returns both tif.fasta and tif.position files.
 
 ### Update
 
+- 1.1 Update link of SRA-toolkit in README.md 2014-08-01
 - 1.0 Inital version 2014-02-05
