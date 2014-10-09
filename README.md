@@ -7,15 +7,29 @@ Transposon Insertion Finder (TIF) is a search program to detect insertions of tr
 TIF is one of the fastest and the smallest program among analysis programs of next generation sequencing (NGS). The distinctive feature of TIF is direct selection containing end sequences of the target transposable element from short reads of NGS.
 
 
+### Static data required by TIF (for demonstration)
 
-### Static data
+You can exchange any head and tail sequences of transposon which you want to detect transpositions.
 
 For Tos17 retrotransposon of rice
 
       Head of Tos17: TGTTAAATATATATACA
       Tail of Tos17: TTGCAAGTTAGTTAAGA
       Size of TSD: 5
-   
+
+For mPing transposon of rice (DNA type transposon)
+
+      Head of mPing: GGCCAGTCACAATGGGG
+      Tail of mPing: AGCCATTGTGACTGGCC
+      Size of TSD: 3
+      Because TSD of mPing is too short, extended TIF is recommended. 
+
+For nDart transposon of rice (DNA type transposon)
+
+      Head of nDart: TAGAGGTGGCCAAACGGGC
+      Tail of nDart: GCCCGTTTGGCCACCTCTA
+      Size of TSD: 8
+
 
 For P-element of Drosophila melanogaster
 
@@ -32,24 +46,24 @@ Download sra tool kit from
 
 In your home directory,
 
-      tar xvfz sratoolkit.2.3.5-2-centos_linux64.tar.gz
+      tar xvfz sratoolkit.2.4.1-centos_linux64.tar.gz
 
 For ttm2 (Rice mutant)
 
         cd tif/read
-        ~/sratoolkit.2.3.5-2-centos_linux64/bin/fastq-dump --split-files -A SRR556173
+        ~/sratoolkit.2.4.1-centos_linux64/bin/fastq-dump --split-files -A SRR556173
     
 For ttm5 (Rice mutant)
 
         cd tif/read
-        ~/sratoolkit.2.3.5-2-centos_linux64/bin/fastq-dump --split-files -A SRR556174
-        ~/sratoolkit.2.3.5-2-centos_linux64/bin/fastq-dump --split-files -A SRR556175
+        ~/sratoolkit.2.4.1-centos_linux64/bin/fastq-dump --split-files -A SRR556174
+        ~/sratoolkit.2.4.1-centos_linux64/bin/fastq-dump --split-files -A SRR556175
     
 For D. melanogaster
 
         cd tif/read
-        ~/sratoolkit.2.3.5-2-centos_linux64/bin/fastq-dump --split-files -A SRR823377
-        ~/sratoolkit.2.3.5-2-centos_linux64/bin/fastq-dump --split-files -A SRR823382
+        ~/sratoolkit.2.4.1-centos_linux64/bin/fastq-dump --split-files -A SRR823377
+        ~/sratoolkit.2.4.1-centos_linux64/bin/fastq-dump --split-files -A SRR823382
 
 
 
@@ -107,5 +121,6 @@ The tif_extended.pl returns both tif.fasta and tif.position files.
 
 ### Update
 
+- 1.2 Update README.md 2014-10-09
 - 1.1 Update link of SRA-toolkit in README.md 2014-08-01
 - 1.0 Inital version 2014-02-05
