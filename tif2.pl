@@ -39,8 +39,8 @@
 $head = "TGTTAAATATATATACA"; # 17 base
 $tail = "TTGCAAGTTAGTTAAGA";
 
-$file_list = "./read/SRR556173_?.fastq"; #for ttm2;
-#$file_list = "./read/SRR556174_?.fastq ./read/SRR556175_?.fastq"; #for ttm5;
+#$file_list = "./read/SRR556173_?.fastq"; #for ttm2;
+$file_list = "./read/SRR556174_?.fastq ./read/SRR556175_?.fastq"; #for ttm5;
 
 $hsize = length($head);
 
@@ -62,22 +62,7 @@ while(<IN>){
     if (length($upstream) > 20){
         $junction = substr($upstream, length($upstream) - 20, 20);
         if (length($upstream) > length($head{$junction})){
-            $rjunction = complement($junction);
-            for ($i = 1; $i <= 12; $i++){
-                while (1) {
-                    $pos = index($chr[$i], $junction, $pos + 1);
-                    $rpos = index($chr[$i], $rjunction, $rpos + 1);
-                    if ($pos > -1){
-                        $tpos = $pos + 20;
-                        $head{$i}{$tpos}{forward} = $upstream if length($upstream) > length($head{$i}{$tpos}{forward});
-                    }
-                    if ($rpos > -1){
-                        $tpos = $rpos + 1;
-                        $head{$i}{$tpos}{reverse} = $upstream if length($upstream) > length($head{$i}{$tpos}{reverse});
-                    }
-                    last if $pos == -1 and $rpos == -1;
-                }
-            }
+	    $head{$junction} = $upstream;
         }
     }
 }
@@ -91,34 +76,57 @@ while(<IN>){
     if (length($downstream) > 20){
         $junction = substr($downstream, 0, 20);
         if (length($downstream) > length($tail{$junction})){
-            $rjunction = complement($junction);
-            for ($i = 1; $i <= 12; $i++){
-                while (1) {
-                    $pos = index($chr[$i], $junction, $pos + 1);
-                    $rpos = index($chr[$i], $rjunction, $rpos + 1);
-                    if ($pos > -1){
-                        $tpos = $pos + 1;
-                        $tail{$i}{$tpos}{forward} = $downstream if length($downstream) > length($tail{$i}{$tpos}{forward});
-                    }
-                    if ($rpos > -1){
-                        $tpos = $rpos + 20;
-                        $tail{$i}{$tpos}{reverse} = $downstream if length($downstream) > length($tail{$i}{$tpos}{reverse});
-                    }
-                    last if $pos == -1 and $rpos == -1;
-                }
-            }
+	    $tail{$junction} = $downstream;
         }
     }
 }
 close(IN);
 
-foreach $chr (sort bynumber keys %head){
-    foreach $pos (sort bynumber keys %{$head{$chr}}){
-        foreach $direction (sort keys %{$head{$chr}{$pos}}){
-            $upstream = $head{$chr}{$pos}{$direction};
+foreach $junction (sort keys %head){
+    $rjunction = complement($junction);
+    for ($i = 1; $i <= 12; $i++){
+	while (1) {
+	    $pos = index($chr[$i], $junction, $pos + 1);
+	    $rpos = index($chr[$i], $rjunction, $rpos + 1);
+	    if ($pos > -1){
+		$tpos = $pos + 20;
+		$maphead{$i}{$tpos}{forward} = $head{$junction};
+	    }
+	    if ($rpos > -1){
+		$tpos = $rpos + 1;
+		$maphead{$i}{$tpos}{reverse} = $head{$junction};
+	    }
+	    last if $pos == -1 and $rpos == -1;
+	}
+    }
+}
+
+foreach $junction (sort keys %tail){
+    $rjunction = complement($junction);
+    for ($i = 1; $i <= 12; $i++){
+	while (1) {
+	    $pos = index($chr[$i], $junction, $pos + 1);
+	    $rpos = index($chr[$i], $rjunction, $rpos + 1);
+	    if ($pos > -1){
+		$tpos = $pos + 1;
+		$maptail{$i}{$tpos}{forward} = $tail{$junction};
+	    }
+	    if ($rpos > -1){
+		$tpos = $rpos + 20;
+		$maptail{$i}{$tpos}{reverse} = $tail{$junction};
+	    }
+	    last if $pos == -1 and $rpos == -1;
+	}
+    }
+}
+
+foreach $chr (sort bynumber keys %maphead){
+    foreach $pos (sort bynumber keys %{$maphead{$chr}}){
+        foreach $direction (sort keys %{$maphead{$chr}{$pos}}){
+            $upstream = $maphead{$chr}{$pos}{$direction};
             for($i = $pos - 20 ; $i <= $pos + 20; $i++){
-                if ($tail{$chr}{$i}{$direction} ne ""){
-                    $downstream = $tail{$chr}{$i}{$direction};
+                if ($maptail{$chr}{$i}{$direction} ne ""){
+                    $downstream = $maptail{$chr}{$i}{$direction};
                     $tsd_size = abs($pos - $i) + 1;
                     $tsd_head =  substr($upstream, length($upstream) - $tad_size, $tsd_size);
                     $tsd_tail =  substr($downstream, 0, $tsd_size);
