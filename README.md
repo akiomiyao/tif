@@ -7,7 +7,7 @@ Transposon Insertion Finder (TIF) is a search program to detect insertions of tr
 TIF is one of the fastest and the smallest program among analysis programs of next generation sequencing (NGS). The distinctive feature of TIF is direct selection containing end sequences of the target transposable element from short reads of NGS.
 
 ### Update
-New extended version (tif2.pl) was developped. This version does not depend BLAST search. Search script was included in tif2.pl.
+New extended version (tif2.pl) was developped. This version does not depend on BLAST search. Search script was included in tif2.pl.
 
 ### Static data required by TIF (for demonstration)
 
