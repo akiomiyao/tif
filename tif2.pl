@@ -2,8 +2,11 @@
 #
 #  Copyright (c) 2012 - 2015
 #       National Institute of Agrobiological Sciences.  All rights reserved.
+#  Copyright (c) 2016
+#       National Agriculture and Food Research Organization.  All rights reserved.
 #
-# This code is derived from software contributed to NIAS by
+#       
+# This code is derived from software contributed to NIAS and NARO by
 # Akio Miyao.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -71,8 +74,9 @@ close(IN);
 open(IN, "cat $file_list |grep $tail |");
 while(<IN>){
     chomp;
+    $read_length = length($_);
     $pos = index($_, $tail);
-    $downstream = substr($_, $pos + $hsize, 100);
+    $downstream = substr($_, $pos + $hsize, $read_length);
     if (length($downstream) > 20){
         $junction = substr($downstream, 0, 20);
         if (length($downstream) > length($tail{$junction})){

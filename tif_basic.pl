@@ -1,9 +1,12 @@
 #!/usr/bin/perl
 #
-#  Copyright (c) 2012 - 2014
+#  Copyright (c) 2012 - 2015
 #       National Institute of Agrobiological Sciences.  All rights reserved.
+#  Copyright (c) 2016
+#       National Agriculture and Food Research Organization.  All rights reserved.
 #
-# This code is derived from software contributed to NIAS by
+#       
+# This code is derived from software contributed to NIAS and NARO by
 # Akio Miyao.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -73,8 +76,9 @@ close(IN);
 open(IN, "cat $file_list |grep $tail |");
 while(<IN>){
     chomp;
+    $read_length = length($_);
     $pos = index($_, $tail);
-    $downstream = substr($_, $pos + $tail_size, 100);
+    $downstream = substr($_, $pos + $tail_size, $read_length);
     if (length($downstream) > 20){
         $tsd =  substr($downstream, 0, $tsd_size);
         if (length($s->{tail}{$tsd}) < length($downstream)){
