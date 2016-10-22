@@ -8,11 +8,12 @@ TIF is one of the fastest and the smallest program among analysis programs of ne
 
 ### Update
 Now, tif2.pl runs with commandline options. (2016-10-22)
-e.g. perl tif2.pl ref.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
-First argument is the path of reference sequence with multi-fasta format.
-Second argument is the head sequence of transposon.
-Third argument is the tail sequence of transposon.
-All short reads (e.g name_r1.fastq, name_r2.fastq) in './read' directory will be analyzed.
+
+     e.g. perl tif2.pl ref.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
+     First argument is the path of reference sequence with multi-fasta format.
+     Second argument is the head sequence of transposon.
+     Third argument is the tail sequence of transposon.
+     All short reads (e.g name_r1.fastq, name_r2.fastq) in './read' directory will be analyzed.
 
 New extended version (tif2.pl) was developped. This version does not depend on BLAST search. Search script was included in tif2.pl. (2015-03-02)
 
