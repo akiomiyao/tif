@@ -36,29 +36,49 @@
 #
 #
 
+# Usage: perl tif2.pl ref.fasta head_seq tail_seq
+#
+# Example: perl tif2.pl IRGSP1.0.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
+#
+# ref.fasta is the path of reference in multi-fasta format.
+# head_seq is a short sequence at 5'-end of target transposon.
+# tail_seq is a short sequence at 3'-end of target transposon.
+# Length of head_seq and short_seq is from 17 to 21 bp.
+#
+# All Short-read sequences with fastq format in ./read directory are analyzed.
+# 
+
+$ref = $ARGV[0];
+$head = $ARGV[1];
+$tail = $ARGV[2];
+
+
 #tos17
 #$head = "TGTTAAATATATATACAAGCT"; # 21 base
 #$tail = "TAGGTTGCAAGTTAGTTAAGA";
-$head = "TGTTAAATATATATACA"; # 17 base
-$tail = "TTGCAAGTTAGTTAAGA";
 
-#$file_list = "./read/SRR556173_?.fastq"; #for ttm2;
-$file_list = "./read/SRR556174_?.fastq ./read/SRR556175_?.fastq"; #for ttm5;
+# default
+$ref  = "ref.fasta" if $ref eq "";
+$head = "TGTTAAATATATATACA" if $head eq ""; # 17 base
+$tail = "TTGCAAGTTAGTTAAGA" if $tail eq "";
+
 
 $hsize = length($head);
 
-for ($i = 1; $i <= 12; $i++){
-    if ($i < 10){
-	$file = "./chr/chr0$i";
+open(IN, $ref);
+while(<IN>){
+    chomp;
+    if (/^>/){
+	$name = join('', (split)[0, 1]);
+	$name =~ s/^>//;
     }else{
-	$file = "./chr/chr$i";
+	y/acgtn/ACGTN/;
+	$chr{$name} .= $_;
     }
-    open(IN, $file);
-    ($chr[$i] = <IN>) =~ y/acgtn/ACGTN/;
-    close(IN);
 }
+close(IN);
 
-open(IN, "cat $file_list |grep $head|");
+open(IN, "cat ./read/*.fastq |grep $head|");
 while(<IN>){
     $pos = index($_, $head);
     $upstream = substr($_, 0, $pos);
@@ -71,7 +91,7 @@ while(<IN>){
 }
 close(IN);
 
-open(IN, "cat $file_list |grep $tail |");
+open(IN, "cat ./read/*.fastq |grep $tail |");
 while(<IN>){
     chomp;
     $read_length = length($_);
@@ -88,17 +108,17 @@ close(IN);
 
 foreach $junction (sort keys %head){
     $rjunction = complement($junction);
-    for ($i = 1; $i <= 12; $i++){
+    foreach $name (sort keys %chr){
 	while (1) {
-	    $pos = index($chr[$i], $junction, $pos + 1);
-	    $rpos = index($chr[$i], $rjunction, $rpos + 1);
+	    $pos = index($chr{$name}, $junction, $pos + 1);
+	    $rpos = index($chr{$name}, $rjunction, $rpos + 1);
 	    if ($pos > -1){
 		$tpos = $pos + 20;
-		$maphead{$i}{$tpos}{forward} = $head{$junction};
+		$maphead{$name}{$tpos}{forward} = $head{$junction};
 	    }
 	    if ($rpos > -1){
 		$tpos = $rpos + 1;
-		$maphead{$i}{$tpos}{reverse} = $head{$junction};
+		$maphead{$name}{$tpos}{reverse} = $head{$junction};
 	    }
 	    last if $pos == -1 and $rpos == -1;
 	}
@@ -107,24 +127,24 @@ foreach $junction (sort keys %head){
 
 foreach $junction (sort keys %tail){
     $rjunction = complement($junction);
-    for ($i = 1; $i <= 12; $i++){
+    foreach $name (sort keys %chr){
 	while (1) {
-	    $pos = index($chr[$i], $junction, $pos + 1);
-	    $rpos = index($chr[$i], $rjunction, $rpos + 1);
+	    $pos = index($chr{$name}, $junction, $pos + 1);
+	    $rpos = index($chr{$name}, $rjunction, $rpos + 1);
 	    if ($pos > -1){
 		$tpos = $pos + 1;
-		$maptail{$i}{$tpos}{forward} = $tail{$junction};
+		$maptail{$name}{$tpos}{forward} = $tail{$junction};
 	    }
 	    if ($rpos > -1){
 		$tpos = $rpos + 20;
-		$maptail{$i}{$tpos}{reverse} = $tail{$junction};
+		$maptail{$name}{$tpos}{reverse} = $tail{$junction};
 	    }
 	    last if $pos == -1 and $rpos == -1;
 	}
     }
 }
 
-foreach $chr (sort bynumber keys %maphead){
+foreach $chr (sort keys %maphead){
     foreach $pos (sort bynumber keys %{$maphead{$chr}}){
         foreach $direction (sort keys %{$maphead{$chr}{$pos}}){
             $upstream = $maphead{$chr}{$pos}{$direction};
