@@ -56,24 +56,25 @@ Download sra tool kit from
 
 In your home directory,
 
-      tar xvfz sratoolkit.2.4.1-centos_linux64.tar.gz
+      tar xvfz sratoolkit.2.9.2-centos_linux64.tar.gz
+      copy fastq-dump in bin directory to executable directory.
 
 For ttm2 (Rice mutant)
 
         cd tif/read
-        ~/sratoolkit.2.4.1-centos_linux64/bin/fastq-dump --split-files -A SRR556173
+        fastq-dump --split-files -A SRR556173
     
 For ttm5 (Rice mutant)
 
         cd tif/read
-        ~/sratoolkit.2.4.1-centos_linux64/bin/fastq-dump --split-files -A SRR556174
-        ~/sratoolkit.2.4.1-centos_linux64/bin/fastq-dump --split-files -A SRR556175
+        fastq-dump --split-files -A SRR556174
+        fastq-dump --split-files -A SRR556175
     
 For D. melanogaster
 
         cd tif/read
-        ~/sratoolkit.2.4.1-centos_linux64/bin/fastq-dump --split-files -A SRR823377
-        ~/sratoolkit.2.4.1-centos_linux64/bin/fastq-dump --split-files -A SRR823382
+        fastq-dump --split-files -A SRR823377
+        fastq-dump --split-files -A SRR823382
 
 
 
@@ -83,6 +84,9 @@ Download BLAST programs
 
       ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/blast-2.2.26-x64-linux.tar.gz
       ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.2.29+-x64-linux.tar.gz
+
+New version of BLAST can be downloaded from 
+      https://ftp.ncbi.nlm.nih.gov/blast/executables/
 
 To make blast data base
 
