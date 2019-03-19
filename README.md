@@ -16,7 +16,14 @@ Now, new script tif.pl is implemented. (2019-03-19)
      All short reads (e.g name_r1.fastq, name_r2.fastq) in './read' directory will be analyzed.
      Run without argument, help will be shown.
 
-New extended version (tif2.pl) was developped. This version does not depend on BLAST search. Search script was included in tif2.pl. (2015-03-02)
+This version does not depend on BLAST search. Search script was included in tif.pl.
+
+### Download TIF
+Download zip file of PED from https://github.com/akiomiyao/tif and extract.  
+or  
+% git clone https://github.com/akiomiyao/tif.git  
+If you got scripts from github, update to newest version is very easy using pull command of git.  
+% git pull  
 
 ### Static data required by TIF (for demonstration)
 
