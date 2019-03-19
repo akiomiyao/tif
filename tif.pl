@@ -56,9 +56,16 @@ $usage = "    tif.pl - Transposon Insertion Finder
       Compressed fastq file with gz, bz2 and xz extentions will be analyzed
       without pre-decompression. 
 
+    Result of TIF will be saved to tif.result.
+    tif.result is tab delimited text file.
+    It will be imported to Excel.
+
 Author: Akio Miyao <miyao\@affrc.go.jp>
 
 ";
+$start = time();
+($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($start);
+printf STDERR ("TIF Start: %04d/%02d/%02d %02d:%02d:%02d\n", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
 
 $ref = $ARGV[0];
 $head = $ARGV[1];
@@ -94,6 +101,8 @@ foreach (readdir(DIR)){
 	$command = "xzcat";
     }
 }
+
+$command = "cat" if $command eq "";
 
 open(IN, "$command read/* |");
 while(<IN>){
@@ -184,6 +193,15 @@ foreach $chr (sort keys %maphead){
     }
 }
 close(OUT);
+($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($start);
+printf STDERR ("TIF Start: %04d/%02d/%02d %02d:%02d:%02d\n", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+$end = time();
+($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($end);
+printf STDERR ("TIF End: %04d/%02d/%02d %02d:%02d:%02d\n", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+
+$elapsed = $end - $start;
+
+print STDERR "$elapsed seconds elapsed.\n";
 
 sub addHead{
     my $seq = shift;
