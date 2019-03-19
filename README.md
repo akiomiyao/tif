@@ -7,13 +7,14 @@ Transposon Insertion Finder (TIF) is a search program to detect insertions of tr
 TIF is one of the fastest and the smallest program among analysis programs of next generation sequencing (NGS). The distinctive feature of TIF is direct selection containing end sequences of the target transposable element from short reads of NGS.
 
 ### Update
-Now, tif2.pl runs with commandline options. (2016-10-22)
+Now, new script tif.pl is implemented. (2019-03-19)
 
-     e.g. perl tif2.pl ref.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
+     e.g. perl tif.pl ref.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
      First argument is the path of reference sequence with multi-fasta format.
      Second argument is the head sequence of transposon.
      Third argument is the tail sequence of transposon.
      All short reads (e.g name_r1.fastq, name_r2.fastq) in './read' directory will be analyzed.
+     Run without argument, help will be shown.
 
 New extended version (tif2.pl) was developped. This version does not depend on BLAST search. Search script was included in tif2.pl. (2015-03-02)
 
@@ -52,11 +53,11 @@ For P-element of Drosophila melanogaster
 
 Download sra tool kit from
 
-      http://www.ncbi.nlm.nih.gov/Traces/sra/?view=software
+      https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=software
 
 In your home directory,
 
-      tar xvfz sratoolkit.2.9.2-centos_linux64.tar.gz
+      tar xvfz sratoolkit.2.9.6-centos_linux64.tar.gz
       copy fastq-dump in bin directory to executable directory.
 
 For ttm2 (Rice mutant)
@@ -142,6 +143,7 @@ The tif2.pl reads nucleotide sequence of rice genome saved in chr directory, pos
 
 ### Update
 
+- 1.5 tif.pl is implemented. 2019-03-19
 - 1.4 tif2.pl is improved. 2016-10-22
 - 1.3 Add new extended version tif2.pl 2015-03-02
 - 1.2 Update README.md 2014-10-09
