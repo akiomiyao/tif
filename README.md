@@ -7,22 +7,22 @@ Transposon Insertion Finder (TIF) is a search program to detect insertions of tr
 TIF is one of the fastest and the smallest program among analysis programs of next generation sequencing (NGS). The distinctive feature of TIF is direct selection containing end sequences of the target transposable element from short reads of NGS.
 
 ### Update
-New scritp tif_flanking.pl is implemented. (2019-03-21)
-     tif_flanking is update of tif_basic.pl.
-     If you do not have reference genome sequnce, try tif_flanking.pl.
-     tif_flanking outputs flanking sequence of transposon insertion in fasta format.
-     Run without argument, help will be shown.
+- New scritp tif_flanking.pl is implemented. (2019-03-21)  
+     tif_flanking is update of tif_basic.pl.  
+     If you do not have reference genome sequnce, try tif_flanking.pl.  
+     tif_flanking outputs flanking sequence of transposon insertion in fasta format. 
+     Run without argument, help will be shown.  
 
-New script tif.pl is implemented. (2019-03-19)
+- New script tif.pl is implemented. (2019-03-19)  
 
-     e.g. perl tif.pl ref.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
-     First argument is the path of reference sequence with multi-fasta format.
-     Second argument is the head sequence of transposon.
-     Third argument is the tail sequence of transposon.
-     All short reads (e.g name_r1.fastq, name_r2.fastq) in './read' directory will be analyzed.
-     Run without argument, help will be shown.
+     e.g. perl tif.pl ref.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA  
+     First argument is the path of reference sequence with multi-fasta format.  
+     Second argument is the head sequence of transposon.  
+     Third argument is the tail sequence of transposon.  
+     All short reads (e.g name_r1.fastq, name_r2.fastq) in './read' directory will be analyzed.  
+     Run without argument, help will be shown. 
 
-This version does not depend on BLAST search. Search script was included in tif.pl.
+This version does not depend on BLAST search. Search script was included in tif.pl.  
 
 ### Download TIF
 Download zip file of PED from https://github.com/akiomiyao/tif and extract.  
