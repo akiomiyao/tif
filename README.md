@@ -7,7 +7,13 @@ Transposon Insertion Finder (TIF) is a search program to detect insertions of tr
 TIF is one of the fastest and the smallest program among analysis programs of next generation sequencing (NGS). The distinctive feature of TIF is direct selection containing end sequences of the target transposable element from short reads of NGS.
 
 ### Update
-Now, new script tif.pl is implemented. (2019-03-19)
+New scritp tif_flanking.pl is implemented. (2019-03-21)
+     tif_flanking is update of tif_basic.pl.
+     If you do not have reference genome sequnce, try tif_flanking.pl.
+     tif_flanking outputs flanking sequence of transposon insertion in fasta format.
+     Run without argument, help will be shown.
+
+New script tif.pl is implemented. (2019-03-19)
 
      e.g. perl tif.pl ref.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
      First argument is the path of reference sequence with multi-fasta format.
@@ -150,6 +156,7 @@ The tif2.pl reads nucleotide sequence of rice genome saved in chr directory, pos
 
 ### Update
 
+- 1.6 tif_flanking.pl is implemented 2019-03-21.
 - 1.5 tif.pl is implemented. 2019-03-19
 - 1.4 tif2.pl is improved. 2016-10-22
 - 1.3 Add new extended version tif2.pl 2015-03-02
