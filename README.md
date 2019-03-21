@@ -10,7 +10,7 @@ TIF is one of the fastest and the smallest program among analysis programs of ne
 - New script tif_flanking.pl is implemented. (2019-03-21)  
      tif_flanking is update of tif_basic.pl.  
      If you do not have reference genome sequnce, try tif_flanking.pl.  
-     tif_flanking outputs flanking sequence of transposon insertion in fasta format. 
+     tif_flanking outputs flanking sequence of transposon insertion in fasta format.  
      Run without argument, help will be shown.  
 
 - New script tif.pl is implemented. (2019-03-19)  
