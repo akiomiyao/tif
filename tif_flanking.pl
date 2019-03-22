@@ -125,9 +125,9 @@ foreach $tsd (sort keys %{$s->{head}}){
 $s->{head}{$tsd}
 >$tj
 $s->{tail}{$tsd}\n";
+    	print $result;
+    	print OUT $result;
     }
-    print $result;
-    print OUT $result;
 }
 close(OUT);
 
