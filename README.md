@@ -23,6 +23,7 @@ TIF is one of the fastest and the smallest program among analysis programs of ne
      Run without argument, help will be shown. 
 
 This version does not depend on BLAST search. Search script was included in tif.pl.  
+tip.pl is upward compatible with tif2.pl.  
 
 ### Download TIF
 Download zip file of PED from https://github.com/akiomiyao/tif and extract.  
