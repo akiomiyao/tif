@@ -55,37 +55,37 @@ Result will be saved to tif.result file.
 
 For *Tos17* retrotransposon of rice
 
-      Head of *Tos17*: TGTTAAATATATATACA
-      Tail of *Tos17*: TTGCAAGTTAGTTAAGA
+      Head of Tos17: TGTTAAATATATATACA
+      Tail of Tos17: TTGCAAGTTAGTTAAGA
       Size of TSD: 5
       fastq: SRR556173 SRR556174 SRR556175
       reference: https://rapdb.dna.affrc.go.jp/download/archive/irgsp1/IRGSP-1.0_genome.fasta.gz
 
 For *mPing* transposon of rice (DNA type transposon)
 
-      Head of *mPing*: GGCCAGTCACAATGGGG
-      Tail of *mPing*: AGCCATTGTGACTGGCC
+      Head of mPing: GGCCAGTCACAATGGGG
+      Tail of mPing: AGCCATTGTGACTGGCC
       Size of TSD: 3
       Because TSD of mPing is too short, extended TIF is recommended. 
 
 For *nDart* transposon of rice (DNA type transposon)
 
-      Head of *nDart*: TAGAGGTGGCCAAACGGGC
-      Tail of *nDart*: GCCCGTTTGGCCACCTCTA
+      Head of nDart: TAGAGGTGGCCAAACGGGC
+      Tail of nDart: GCCCGTTTGGCCACCTCTA
       Size of TSD: 8
 
 For *P*-element of *Drosophila melanogaster*
 
-      Head of *P*-element: CATGATGAAATAACAT
-      Tail of *P*-element: ATGTTATTTCATCATG
+      Head of P-element: CATGATGAAATAACAT
+      Tail of P-element: ATGTTATTTCATCATG
       Size of TSD: 8
       fastq: SRR823377 SRR823382
       reference: ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r6.27_FB2019_02/fasta/dmel-all-chromosome-r6.27.fasta.gz
 
 For *Hi* of *Arabidopsis thaliana*
 
-      Head of *Hi*: GAGGGATCATCTCTTGTGTC
-      Tail of *Hi*: GACTGGCCAGACGATTATTC
+      Head of Hi: GAGGGATCATCTCTTGTGTC
+      Tail of Hi: GACTGGCCAGACGATTATTC
       Size of TSD: 9
       doi: 10.1038/emboj.2013.169
       fastq: DRR001193 (ddm1 mutant)
