@@ -27,41 +27,69 @@ TIF is one of the fastest and the smallest program among analysis programs of ne
 
 ### Download TIF
 Download zip file of PED from https://github.com/akiomiyao/tif and extract.  
+
 or  
+
 % git clone https://github.com/akiomiyao/tif.git  
+
 If you got scripts from github, update to newest version is very easy using pull command of git.  
+
 % git pull  
 
 ### Static data required by TIF (for demonstration)
 
-You can exchange any head and tail sequences of transposon which you want to detect transpositions.
+For example,  
+% perl tif.pl IRGSP-1.0_genome.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
 
-For Tos17 retrotransposon of rice
+or  
 
-      Head of Tos17: TGTTAAATATATATACA
-      Tail of Tos17: TTGCAAGTTAGTTAAGA
+% perl tif.pl TAIR10_chr_all.fas GAGGGATCATCTCTTGTGTC GACTGGCCAGACGATTATTC
+
+or
+
+% perl tif.pl dmel-all-chromosome-r6.27.fasta CATGATGAAATAACAT ATGTTATTTCATCATG
+
+Before run tif.pl, download fastq file in read directory.
+
+Result will be saved to tif.result file.
+
+For *Tos17* retrotransposon of rice
+
+      Head of *Tos17*: TGTTAAATATATATACA
+      Tail of *Tos17*: TTGCAAGTTAGTTAAGA
       Size of TSD: 5
+      fastq: SRR556173 SRR556174 SRR556175
+      reference: https://rapdb.dna.affrc.go.jp/download/archive/irgsp1/IRGSP-1.0_genome.fasta.gz
 
-For mPing transposon of rice (DNA type transposon)
+For *mPing* transposon of rice (DNA type transposon)
 
-      Head of mPing: GGCCAGTCACAATGGGG
-      Tail of mPing: AGCCATTGTGACTGGCC
+      Head of *mPing*: GGCCAGTCACAATGGGG
+      Tail of *mPing*: AGCCATTGTGACTGGCC
       Size of TSD: 3
       Because TSD of mPing is too short, extended TIF is recommended. 
 
-For nDart transposon of rice (DNA type transposon)
+For *nDart* transposon of rice (DNA type transposon)
 
-      Head of nDart: TAGAGGTGGCCAAACGGGC
-      Tail of nDart: GCCCGTTTGGCCACCTCTA
+      Head of *nDart*: TAGAGGTGGCCAAACGGGC
+      Tail of *nDart*: GCCCGTTTGGCCACCTCTA
       Size of TSD: 8
 
+For *P*-element of *Drosophila melanogaster*
 
-For P-element of Drosophila melanogaster
-
-      Head of P-element: CATGATGAAATAACAT
-      Tail of P-element: ATGTTATTTCATCATG
+      Head of *P*-element: CATGATGAAATAACAT
+      Tail of *P*-element: ATGTTATTTCATCATG
       Size of TSD: 8
+      fastq: SRR823377 SRR823382
+      reference: ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r6.27_FB2019_02/fasta/dmel-all-chromosome-r6.27.fasta.gz
 
+For *Hi* of *Arabidopsis thaliana*
+
+      Head of *Hi*: GAGGGATCATCTCTTGTGTC
+      Tail of *Hi*: GACTGGCCAGACGATTATTC
+      Size of TSD: 9
+      doi: 10.1038/emboj.2013.169
+      fastq: DRR001193 (ddm1 mutant)
+      reference: https://www.arabidopsis.org/download_files/Genes/TAIR10_genome_release/TAIR10_chromosome_files/TAIR10_chr_all.fas
 
 ### To obtain short read data
 
@@ -85,13 +113,11 @@ For ttm5 (Rice mutant)
         fastq-dump --split-files -A SRR556174
         fastq-dump --split-files -A SRR556175
     
-For D. melanogaster
+For *D. melanogaster*
 
         cd tif/read
         fastq-dump --split-files -A SRR823377
         fastq-dump --split-files -A SRR823382
-
-
 
 ### BLAST programs
 
@@ -114,7 +140,7 @@ For Rice
       gzip -d IRGSP-1.0_genome.fasta.gz
       formatdb -t IRGSP1.0 -p F -n IRGSP1.0 -i IRGSP-1.0_genome.fasta
 
-For Drosophira melanogaster
+For *Drosophira melanogaster*
 
       cd tif/blast
       wget ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r5.55_FB2014_01/fasta/dmel-all-chromosome-r5.55.fasta.gz
