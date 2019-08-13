@@ -24,6 +24,17 @@ TIF is one of the fastest and the smallest program among analysis programs of ne
 
      This version does not depend on BLAST search. Search script was included in tif.pl.  
      tip.pl is upward compatible with tif2.pl.  
+     
+- TIF is a powerful tool.  
+     Sensitive detection of pre-integration intermediates of long terminal repeat retrotransposons in crop plants  
+     Jungnam Cho, Matthias Benoit, Marco Catoni, Hajk-Georg Drost, Anna Brestovitsky, Matthijs Oosterbeek, Jerzy Paszkowski  
+     Nature Plants, 5:26–33 (2019)  
+     https://doi.org/10.1038/s41477-018-0320-9  
+
+     Mobilization of Pack-CACTA transposons in Arabidopsis suggests the mechanism of gene shuffling  
+     Marco Catoni, Thomas Jonesman, Elisa Cerruti, Jerzy Paszkowski  
+     Nucleic Acids Research, 47(3):1311–1320 (2019)  
+     https://doi.org/10.1093/nar/gky1196  
 
 ### Download TIF
 Download zip file of PED from https://github.com/akiomiyao/tif and extract.  
