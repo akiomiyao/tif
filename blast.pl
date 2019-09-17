@@ -41,8 +41,8 @@
 $s = {};
 
 #for rice
-$blast_command = "blastall -p blastn -d ./blast/IRGSP1.0 -m 8 -b 1"; # legacy blast
-#$blast_command = "~/ncbi-blast-2.2.29+/bin/blastn -db ./blast/IRGSP1.0 -outfmt 6 -num_alignments 1"; # blast plus
+#$blast_command = "blastall -p blastn -d ./blast/IRGSP1.0 -m 8 -b 1"; # legacy blast
+$blast_command = "ncbi-blast-2.9.0+/bin/blastn -db blast/IRGSP-1.0_genome.fasta -outfmt 6 -num_alignments 1"; # blast plus
 
 #for Drosophila melanogaster
 #$blast_command = "blastall -p blastn -d ./blast/dmel-r5.55 -m 8 -b 1"; # legacy blast
@@ -75,6 +75,7 @@ foreach $chr (sort keys %{$s->{head}}){
                 }else{
                     $direction = "reverse";
                 }
+                print     "$chr\t$tail\t$head\t$tsd_size\t$tsd_tail\t$direction\n" if $tsd_tail eq $tsd_head;
                 print OUT "$chr\t$tail\t$head\t$tsd_size\t$tsd_tail\t$direction\n" if $tsd_tail eq $tsd_head;
             }
         }
