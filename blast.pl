@@ -42,7 +42,7 @@ $s = {};
 
 #for rice
 #$blast_command = "blastall -p blastn -d ./blast/IRGSP1.0 -m 8 -b 1"; # legacy blast
-$blast_command = "ncbi-blast-2.9.0+/bin/blastn -db blast/IRGSP-1.0_genome.fasta -outfmt 6 -num_alignments 1"; # blast plus
+$blast_command = "./blastn -db IRGSP-1.0_genome.fasta -outfmt 6 -num_alignments 1"; # blast plus
 
 #for Drosophila melanogaster
 #$blast_command = "blastall -p blastn -d ./blast/dmel-r5.55 -m 8 -b 1"; # legacy blast

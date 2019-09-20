@@ -9,9 +9,6 @@
 # This code is derived from software contributed to NIAS and NARO by
 # Akio Miyao.
 #
-# This code is derived from software contributed to NIAS by
-# Akio Miyao.
-#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -40,29 +37,25 @@
 # Version 1.1
 #
 
+$file_list = "./read/*.fastq"; 
+
 #tos17
-#$head = "TGTTAAATATATATACAAGCT"; # 21 base
-#$tail = "TAGGTTGCAAGTTAGTTAAGA";
 $head = "TGTTAAATATATATACA"; # 17 base
 $tail = "TTGCAAGTTAGTTAAGA";
 
-$file_list = "./read/SRR556173_?.fastq"; #for ttm2;
-#$file_list = "./read/SRR556174_?.fastq ./read/SRR556175_?.fastq"; #for ttm5;
-
-$blast_command = "blastall -p blastn -d ./blast/IRGSP1.0 -m 8 -b 1"; # legacy blast
-#$blast_command = "~/ncbi-blast-2.2.29+/bin/blastn -db ./blast/IRGSP1.0 -outfmt 6 -num_alignments 1"; # blast plus
+$blast_command = "./blastn -db IRGSP-1.0_genome.fasta -outfmt 6 -num_alignments 1"; # blast plus
+#$blast_command = "blastall -p blastn -d ./blast/IRGSP1.0 -m 8 -b 1"; # legacy blast
 
 #P-element
-#$head = "CATGATGAAATAACATAAGG"; # 21 base
-#$tail = "CCTTATGTTATTTCATCATG"; 
 #$head = "CATGATGAAATAACATA"; # 17 base
 #$tail = "TATGTTATTTCATCATG";
 
-#$file_list = "read/SRR823377_?.fastq"; # for D. melanogaster
-#$file_list = "read/SRR823382_?.fastq"; # for D. melanogaster
+#$blast_command = "blastall -p blastn -d ./dmel-r5.55 -m 8 -b 1"; # legacy blast
+#$blast_command = "~/blastn -db dmel-r5.55.fasta -outfmt 6 -num_alignments 1"; # blast plus
 
-#$blast_command = "blastall -p blastn -d ./blast/dmel-r5.55 -m 8 -b 1"; # legacy blast
-#$blast_command = "~/ncbi-blast-2.2.29+/bin/blastn -db ./blast/dmel-r5.55 -outfmt 6 -num_alignments 1"; # blast plus
+$start = time();
+($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($start);
+printf STDERR ("TIF Start: %04d/%02d/%02d %02d:%02d:%02d\n", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
 
 $tsize = length($tail);
 
@@ -139,12 +132,23 @@ foreach $chr (sort keys %{$s->{head}}){
                 }else{
                     $direction = "reverse";
                 }
+                print     "$chr\t$tail\t$head\t$tsd_size\t$tsd_tail\t$direction\n" if $tsd_tail eq $tsd_head;
                 print OUT "$chr\t$tail\t$head\t$tsd_size\t$tsd_tail\t$direction\n" if $tsd_tail eq $tsd_head;
             }
         }
     }
 }
 close(OUT);
+
+($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($start);
+printf STDERR ("TIF Start: %04d/%02d/%02d %02d:%02d:%02d\n", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+$end = time();
+($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($end);
+printf STDERR ("TIF End: %04d/%02d/%02d %02d:%02d:%02d\n", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+
+$elapsed = $end - $start;
+
+print STDERR "$elapsed seconds elapsed.\n";
 
 sub bynumber{
     $a <=> $b;
