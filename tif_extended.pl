@@ -43,7 +43,7 @@ $file_list = "./read/*.fastq";
 $head = "TGTTAAATATATATACA"; # 17 base
 $tail = "TTGCAAGTTAGTTAAGA";
 
-$blast_command = "./blastn -db IRGSP-1.0_genome.fasta -outfmt 6 -num_alignments 1"; # blast plus
+$blast_command = "blastn -db IRGSP-1.0_genome.fasta -outfmt 6 -num_alignments 1"; # blast plus
 #$blast_command = "blastall -p blastn -d ./blast/IRGSP1.0 -m 8 -b 1"; # legacy blast
 
 #P-element
