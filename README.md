@@ -134,29 +134,32 @@ For *D. melanogaster*
 
 Download BLAST programs 
 
-      ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/blast-2.2.26-x64-linux.tar.gz
-      ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.2.29+-x64-linux.tar.gz
+      ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.9.0+-x64-linux.tar.gz
 
 New version of BLAST can be downloaded from 
       https://ftp.ncbi.nlm.nih.gov/blast/executables/
+      
+Copy blastn and makeblastdb to executable directory.    
+     cp ncbi-blast-2.9.0+/bin/blastn ~/bin    
+     cp ncbi-blast-2.9.0+/bin/makeblastdb ~/bin  
 
 To make blast data base
 
-      mkdir tif/blast
+      makeblastdb -in IRGSP-1.0_genome.fasta -dbtype nuclast
 
 For Rice
 
-      cd tif/blast
+      cd tif
       wget http://rapdb.dna.affrc.go.jp/download/archive/irgsp1/IRGSP-1.0_genome.fasta.gz
       gzip -d IRGSP-1.0_genome.fasta.gz
-      formatdb -t IRGSP1.0 -p F -n IRGSP1.0 -i IRGSP-1.0_genome.fasta
-
+      makeblastdb -in IRGSP-1.0_genome.fasta -dbtype nucl
+      
 For *Drosophira melanogaster*
 
-      cd tif/blast
+      cd tif
       wget ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r5.55_FB2014_01/fasta/dmel-all-chromosome-r5.55.fasta.gz
       gzip -d dmel-all-chromosome-r5.55.fasta.gz
-      formatdb -t dmel-r5.55 -p F -n dmel-r5.55 -i dmel-all-chromosome-r5.55.fasta
+      makeblastdb -in dmel-all-chromosome-r5.55.fasta -dbtype nucl 
 
 
 ### Search targets of transposon
