@@ -62,7 +62,14 @@ or
 
 Before run tif.pl, download fastq file in read directory.
 
-Result will be saved to tif.result file.
+Result will be saved to tif.result file.  
+
+The tif.pl is easy to use and has high sensitivity rather than old programs.  
+But old programs described below, tif_basic.pl and blast.pl (Algorithm 1) and tif_extended (Algorithm 2) are
+faster than tif.pl.  
+Old programs do not analyze complementary sequences of fastq.  
+The function of tif_flanking.pl is same as tif_basic.pl, but tif_flanking.pl analyzes  
+complementary sequences from fastq. It means that tif_flanking is more sensitive but slow.
 
 For *Tos17* retrotransposon of rice
 
@@ -175,13 +182,13 @@ To test TIF algorithm 1
 
       cd tif
       perl tif_basic.pl head_sequence tail_sequence TSD_size
-      perl blat.pl blatdb_name
+      perl blast.pl blatdb_name
 
       For example,
       cd tif
       perl tif_basic.pl TGTTAAATATATATACA TTGCAAGTTAGTTAAGA 5
       perl blast.pl IRGSP-1.0_genome.fasta
-      
+           
 Output of tif_basic.pl is tif.fasta, a multiple FASTA file.
   
 The blast.pl reads tif.fasta and returns tif.position containing location and direction of TE insertion sites.
