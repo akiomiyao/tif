@@ -34,29 +34,31 @@
 # SUCH DAMAGE.
 #
 #
-# Version 1.0
+# Version 1.1
 #
+
+$head = $ARGV[0];
+$tail = $ARGV[1];
+$tsd_size = $ARGV[2];
+
+if ($tsd_size eq ""){
+    print "Usage:
+  perl tif_basic.pl head_sequence tail_sequence tsd_size
+
+  For Tos17 of rice,
+  perl tif_basic.pl TGTTAAATATATATACA TTGCAAGTTAGTTAAGA 5
+
+  For P-element of Drosophila meranogaster,
+  perl tif_basic.pl CATGATGAAATAACAT ATGTTATTTCATCATG 8
+
+  Result is saved to 'tif.fasta' file.  
+";
+    exit;
+}
 
 $s = {};
 
-# Tos17
-#$head = "TGTTAAATATATATACAAGCT"; #21
-#$tail = "TAGGTTGCAAGTTAGTTAAGA";
-$head = "TGTTAAATATATATACA"; #17
-$tail = "TTGCAAGTTAGTTAAGA";
-
-$tsd_size = 5;
-$file_list = "read/SRR556173_?.fastq"; # for ttm2
-#$file_list = "read/SRR556174_?.fastq read/SRR556175_?.fastq"; # for ttm5
-
-#P-element
-#$head = "CATGATGAAATAACATAAGG"; #21
-#$tail = "CCTTATGTTATTTCATCATG"; 
-#$head = "CATGATGAAATAACAT"; #17
-#$tail = "ATGTTATTTCATCATG";
-#$tsd_size = 8;
-#$file_list = "read/SRR823377_?.fastq"; # for D. melanogaster
-#$file_list = "read/SRR823382_?.fastq"; # for D. melanogaster
+$file_list = "read/*";
 
 $tail_size = length($tail);
 
@@ -93,11 +95,12 @@ foreach $tsd (sort keys %{$s->{head}}){
     if ($s->{tail}{$tsd} ne ""){
 	$hj = substr($s->{head}{$tsd}, length($s->{head}{$tsd}) - 20, 20) . "_head";
 	$tj = substr($s->{tail}{$tsd}, 0, 20) . "_tail";
-
-        print OUT ">$hj
+        $output = ">$hj
 $s->{head}{$tsd}
 >$tj
 $s->{tail}{$tsd}\n";
     }
+    print     $output;
+    print OUT $output;
 }
 close(OUT);

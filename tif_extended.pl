@@ -34,24 +34,34 @@
 # SUCH DAMAGE.
 #
 #
-# Version 1.1
+# Version 1.2
 #
 
-$file_list = "./read/*.fastq"; 
+$db   = $ARGV[0];
+$head = $ARGV[1];
+$tail = $ARGV[2];
 
-#tos17
-$head = "TGTTAAATATATATACA"; # 17 base
-$tail = "TTGCAAGTTAGTTAAGA";
+if ($tail eq ""){
+    print "Usage:
+  perl tif_extended.pl blast_db head_sequence tail_sequence
 
-$blast_command = "blastn -db IRGSP-1.0_genome.fasta -outfmt 6 -num_alignments 1"; # blast plus
-#$blast_command = "blastall -p blastn -d ./blast/IRGSP1.0 -m 8 -b 1"; # legacy blast
+  For Tos17 of rice,
+  perl tif_extended.pl IRGSP-1.0_genome.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
 
-#P-element
-#$head = "CATGATGAAATAACATA"; # 17 base
-#$tail = "TATGTTATTTCATCATG";
+  For P-element of Drosophila meranogaster,
+  perl tif_extended.pl dmel-all-chromosome-r6.27.fasta CATGATGAAATAACAT ATGTTATTTCATCATG
 
-#$blast_command = "blastall -p blastn -d ./dmel-r5.55 -m 8 -b 1"; # legacy blast
-#$blast_command = "~/blastn -db dmel-r5.55.fasta -outfmt 6 -num_alignments 1"; # blast plus
+  Result is saved to 'tif.position' file.  
+
+To make blastdb, for example,
+
+    makeblastdb -in IRGSP-1.0_genome.fasta -dbtype nucl
+";
+    exit;
+}
+$file_list = "./read/*"; 
+
+$blast_command = "blastn -db $db -outfmt 6 -num_alignments 1"; # blast plus
 
 $start = time();
 ($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($start);

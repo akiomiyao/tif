@@ -38,17 +38,34 @@
 # This script is used for result of tif_basic.pl
 #
 
+$db = $ARGV[0];
+
 $s = {};
 
-#for rice
-#$blast_command = "blastall -p blastn -d ./blast/IRGSP1.0 -m 8 -b 1"; # legacy blast
-$blast_command = "blastn -db IRGSP-1.0_genome.fasta -outfmt 6 -num_alignments 1"; # blast plus
+if ($db eq ""){
+    print "
+Usage:
 
-#for Drosophila melanogaster
-#$blast_command = "blastall -p blastn -d ./blast/dmel-r5.55 -m 8 -b 1"; # legacy blast
-#$blast_command = "~/ncbi-blast-2.2.29+/bin/blastn -db ./blast/dmel-r5.55 -outfmt 6 -num_alignments 1"; # blast plus
+    perl blast.pl blast_db_name
 
-open(IN, "cat tif.fasta | $blast_command |"); # tif.fasta is a result of tif_basic.pl
+For example,
+
+    perl blast.pl IRGSP-1.0_genome.fasta
+
+Input is 'tif.fasta' file.
+Result is saved to tif.position file.
+
+To make blastdb, for example,
+
+    makeblastdb -in IRGSP-1.0_genome.fasta -dbtype nucl
+
+";
+    exit;
+}
+
+$blast_command = "blastn -db $db -outfmt 6 -num_alignments 1";
+
+open(IN, "cat tif.fasta | $blast_command |");
 while(<IN>){
     @row = split;
     if ($row[2] > 96){
