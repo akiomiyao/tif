@@ -164,13 +164,23 @@ For *Drosophira melanogaster*
 
 ### Search targets of transposon
 
-Edit and select head, tail, tsd_size and file list in tif_basic.pl and blast.pl, or tif_extended.pl.
+Run without any arguments, help message is shown.
+
+Save fastq files in read directory.
+
+     cd tif
+     cp somewhere/foo.fastq read
 
 To test TIF algorithm 1
 
       cd tif
-      perl tif_basic.pl
-      perl blast.pl
+      perl tif_basic.pl head_sequence tail_sequence TSD_size
+      perl blat.pl blatdb_name
+
+      For example,
+      cd tif
+      perl tif_basic.pl TGTTAAATATATATACA TTGCAAGTTAGTTAAGA 5
+      perl blast.pl IRGSP-1.0_genome.fasta
       
 Output of tif_basic.pl is tif.fasta, a multiple FASTA file.
   
@@ -179,14 +189,18 @@ The blast.pl reads tif.fasta and returns tif.position containing location and di
 To test TIF algorithm 2
 
       cd tif
-      perl tif_extended.pl
+      perl tif_extended.pl reference_fasta_file head_sequence tail_sequence
+
+      For example,
+      cd tif
+      perl tif_extended.pl IRGSP-1.0_genome.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
       
 The tif_extended.pl returns both tif.fasta and tif.position files.
 
 For new extended tif
 
       cd tif
-      perl tif.pl
+      perl tif.pl IRGSP-1.0_genome.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
 
 The tif.pl reads nucleotide sequence of rice genome saved in chr directory, position of junction will be detected by text search against the genome sequence. This enable to detect insertions even on repetitive loci.
 
