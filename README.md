@@ -98,7 +98,7 @@ For *P*-element of *Drosophila melanogaster*
       Tail of P-element: ATGTTATTTCATCATG
       Size of TSD: 8
       fastq: SRR823377 SRR823382
-      reference: ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r6.27_FB2019_02/fasta/dmel-all-chromosome-r6.27.fasta.gz
+      reference: ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r6.29_FB2019_04/fasta/dmel-all-chromosome-r6.29.fasta.gz
 
 For *Hi* of *Arabidopsis thaliana*
 
@@ -152,7 +152,7 @@ Copy blastn and makeblastdb to executable directory.
 
 To make blast data base
 
-      makeblastdb -in IRGSP-1.0_genome.fasta -dbtype nuclast
+      makeblastdb -in reference_genome.fasta -dbtype nucl
 
 For Rice
 
@@ -164,9 +164,9 @@ For Rice
 For *Drosophira melanogaster*
 
       cd tif
-      wget ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r5.55_FB2014_01/fasta/dmel-all-chromosome-r5.55.fasta.gz
-      gzip -d dmel-all-chromosome-r5.55.fasta.gz
-      makeblastdb -in dmel-all-chromosome-r5.55.fasta -dbtype nucl 
+      wget ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r6.29_FB2019_04/fasta/dmel-all-chromosome-r6.29.fasta.gz
+      gzip -d dmel-all-chromosome-r6.29.fasta.gz
+      makeblastdb -in dmel-all-chromosome-r6.29.fasta -dbtype nucl 
 
 
 ### Search targets of transposon
