@@ -15,11 +15,11 @@ TIF is one of the fastest and the smallest program among analysis programs of ne
 
 - New script tif.pl is implemented. (2019-03-19)  
 
-     e.g. perl tif.pl ref.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA  
+     *e.g.* perl tif.pl ref.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA  
      First argument is the path of reference sequence with multi-fasta format.  
      Second argument is the head sequence of transposon.  
      Third argument is the tail sequence of transposon.  
-     All short reads (e.g name_r1.fastq, name_r2.fastq) in './read' directory will be analyzed.  
+     All short reads (*e.g* name_r1.fastq, name_r2.fastq) in './read' directory will be analyzed.  
      Run without argument, help will be shown. 
 
      This version does not depend on BLAST search. Search script was included in tif.pl.  
@@ -58,7 +58,7 @@ or
 
 or
 
-% perl tif.pl dmel-all-chromosome-r6.27.fasta CATGATGAAATAACAT ATGTTATTTCATCATG
+% perl tif.pl dmel-all-chromosome-r6.29.fasta CATGATGAAATAACAT ATGTTATTTCATCATG
 
 Before run tif.pl, download fastq file in read directory.
 
