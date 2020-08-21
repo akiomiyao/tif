@@ -8,9 +8,9 @@ TIF is one of the fastest and the smallest program among analysis programs of ne
 
 ### Update
 - New script tif_nonltr.pl is implemented. (2020-08-19)
-  tif_nonltr.pl detects insertions of non-LTR retrotransposons.
-  perl tif_nonltr.pl
-  will show the usage.
+  tif_nonltr.pl detects insertions of non-LTR retrotransposons.  
+  perl tif_nonltr.pl  
+  will show the usage.  
 - New script tif_flanking.pl is implemented. (2019-03-21)  
      tif_flanking is update of tif_basic.pl.  
      If you do not have reference genome sequnce, try tif_flanking.pl.  
