@@ -30,49 +30,122 @@
 #
 #
 
-$usage = "    tif.pl - Transposon Insertion Finder
+$usage = "    $0 - Transposon Insertion Finder
 
     For example,
-    perl tif.pl reference.fasta head_sequence tail_sequence
+    perl $0 reference.fasta target head_sequence tail_sequence
 
     For endogenous retrotransposon Tos17 in rice,
-    perl tif.pl IRGSP-1.0_genome.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
+    perl $0 IRGSP-1.0_genome.fasta.gz ttm5 TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
 
     For P-element of Drosophila malanogaster
-    perl tif.pl dmel-all-chromosome-r6.26.fasta CATGATGAAATAACAT ATGTTATTTCATCATG
+    perl $0 dmel-all-chromosome-r6.26.fasta target CATGATGAAATAACAT ATGTTATTTCATCATG
 
-      reference.fasta is the path of reference in multi-fasta format.
-      head_sequence is a short sequence at 5'-end of target transposon.
-      tail_sequence is a short sequence at 3'-end of target transposon.
-      Length of head_seq and short_seq is from 17 to 21 bp.
+    Example
+    In the directory of $0 script,
+    mkdir target
+    mkdir target/read
+    cp somewhere/fastq_files target/read
+    cp somewhere/reference_fasta .
+    perl $0 reference_fasta target head_sequence tail_sequence
 
-      All Short-read sequences with fastq format in read directory are analyzed.
-      Compressed fastq file with gz, bz2 and xz extentions will be analyzed
-      without pre-decompression. 
+    Result and log are saved in target directory.
 
-    Result of TIF will be saved to tif.result.
-    tif.result is tab delimited text file.
-    It will be imported to Excel.
+    Compressed file with gz, bz2 and xz extentions will be analyzed
+    without pre-decompression. 
+
+    reference.fasta is the reference sequence with multi-fasta format.
+    head_sequence is a short sequence at 5'-end of target transposon.
+    tail_sequence is a short sequence at 3'-end of target transposon.
+    Length of head_seq and short_seq shold be from 17 to 21 bp.
 
 Author: Akio Miyao <miyao\@affrc.go.jp>
 
 ";
-$start = time();
-($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($start);
-printf STDERR ("TIF Start: %04d/%02d/%02d %02d:%02d:%02d\n", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
 
-$ref = $ARGV[0];
-$head = $ARGV[1];
-$tail = $ARGV[2];
+$ref    = $ARGV[0];
+$target = $ARGV[1];
+$head   = $ARGV[2];
+$tail   = $ARGV[3];
 
 if ($tail eq ""){
     print $usage;
     exit;
 }
 
+$start = time();
+open(LOG, "> $target/log.$head.$tail");
+print LOG "Program: $0
+Reference: $ref
+Target: $target
+Head: $head
+Tail: $tail
+
+";
+&log("TIF start.");
+
 $hsize = length($head);
 
-open(IN, $ref);
+if (! -e "$target/selected.$head.$tail"){
+    open(OUT, "> $target/selected.$head.$tail");
+    opendir(DIR, "$target/read");
+    foreach $file (sort readdir(DIR)){
+	next if $file =~ /^\./;
+	if ($file =~ /.gz$/){
+	    open(IN, "zcat $target/read/$file |");
+	}elsif($file =~ /.bz2$/){
+	    open(IN, "bzcat $target/read/$file |");
+	}elsif($file =~ /.xz$/){
+	    open(IN, "xzcat $target/read/$file |");
+	}else{
+	    open(IN, "$target/read/$file");
+	}
+	while(<IN>){
+	    $line = 0 if $line ++ == 3;
+	    if ($total % 10000000 == 0 and $total > 0){
+		print STDERR &getTimestamp() . " $total reads analyzed.\n";
+	    }
+	    if ($line == 2){
+		$total++;
+		chomp;
+		if (/$head|$tail/){
+		    print OUT "$_\n";
+		    next;
+		}
+		$comp = &complement($_);
+		if ($comp =~ /$head|$tail/){
+		    print OUT "$_\n";
+		    next;
+		}
+	    }
+	}
+	close(IN);
+    }
+    close(OUT);
+}
+
+open(IN, "$target/selected.$head.$tail");
+while(<IN>){
+    chomp;
+    if (/$head/){
+	&addHead($_);
+    }elsif(/$tail/){
+	&addTail($_);
+    }
+}
+close(IN);
+
+&log("Reading chromosome sequences.");
+
+if ($ref =~ /.gz$/){
+    open(IN, "zcat $ref |");
+}elsif($ref =~ /.bz2$/){
+    open(IN, "bzcat $ref |");
+}elsif($ref =~ /.xz$/){
+    open(IN, "xzcat $ref |");
+}else{
+    open(IN, $ref);
+}
 while(<IN>){
     chomp;
     if (/^>/){
@@ -85,90 +158,78 @@ while(<IN>){
 }
 close(IN);
 
-opendir(DIR, "read");
-foreach (readdir(DIR)){
-    if (/gz$/){
-	$command = "zcat";
-    }elsif(/bz2$/){
-	$command = "bzcat";
-    }elsif(/xz$/){
-	$command = "xzcat";
-    }
-}
+&log("Mapping of junction of head.");
 
-$command = "cat" if $command eq "";
-
-open(IN, "$command read/* |");
-while(<IN>){
-    $line = 0 if $line ++ == 3;
-    $total++;
-    if ($total % 1000000 == 0){
-	print STDERR "$total reads analyzed.\n";
-    }
-    if ($line == 2){
-	chomp;
-	$comp = &complement($_);
-	if (/$head/){
-	    &addHead($_);
-	    next;
-	}elsif(/$tail/){
-	    &addTail($_);
-	    next;
-	}
-	if ($comp =~ /$head/){
-	    &addHead($comp);
-	    next;
-	}elsif($comp =~ /$tail/){
-	    &addTail($comp);
-	    next;
-	}
-    }
-}
-close(IN);
-
-print STDERR "Mapping of junction of head.\n";
-
-foreach $junction (sort keys %head){
+foreach $upstream (sort keys %head){
+    $junction = substr($upstream, length($upstream) - 20, 20);
     $rjunction = complement($junction);
     foreach $name (sort keys %chr){
 	while (1) {
 	    $pos = index($chr{$name}, $junction, $pos + 1);
-	    $rpos = index($chr{$name}, $rjunction, $rpos + 1);
 	    if ($pos > -1){
-		$tpos = $pos + 20;
-		$maphead{$name}{$tpos}{forward} = $head{$junction};
+		$length = length($upstream);
+		$ref = substr($chr{$name}, $pos - $length + 20, $length);
+		if ($ref eq $upstream){
+		    $tpos = $pos + 20;
+		    if ($length > length($maphead{$name}{$tpos}{forward})){
+			$maphead{$name}{$tpos}{forward} = $upstream;
+		    }
+		}
 	    }
+	    $rpos = index($chr{$name}, $rjunction, $rpos + 1);
 	    if ($rpos > -1){
-		$tpos = $rpos + 1;
-		$maphead{$name}{$tpos}{reverse} = $head{$junction};
+		$cupstream = complement($upstream);
+		$length = length($cupstream);
+		$ref = substr($chr{$name}, $rpos, $length);
+		if ($ref eq $cupstream){
+		    $tpos = $rpos + 1;
+		    if ($length > length($maphead{$name}{$tpos}{reverse})){
+			$maphead{$name}{$tpos}{reverse} = $upstream;
+		    }
+		}
 	    }
 	    last if $pos == -1 and $rpos == -1;
 	}
     }
 }
 
-print STDERR "Mapping of junction of tail.\n";
+&log("Mapping of junction of tail.");
 
-foreach $junction (sort keys %tail){
+foreach $downstream (sort keys %tail){
+    $junction = substr($downstream, 0, 20);
     $rjunction = complement($junction);
     foreach $name (sort keys %chr){
 	while (1) {
 	    $pos = index($chr{$name}, $junction, $pos + 1);
-	    $rpos = index($chr{$name}, $rjunction, $rpos + 1);
 	    if ($pos > -1){
-		$tpos = $pos + 1;
-		$maptail{$name}{$tpos}{forward} = $tail{$junction};
+		$downstream = $downstream;
+		$length = length($downstream);
+		$ref = substr($chr{$name}, $pos, $length);
+		if ($ref eq $downstream){
+		    $tpos = $pos + 1;
+		    if ($length > length($maptail{$name}{$tpos}{forward})){
+			$maptail{$name}{$tpos}{forward} = $downstream;
+		    }
+		}
 	    }
+	    $rpos = index($chr{$name}, $rjunction, $rpos + 1);
 	    if ($rpos > -1){
-		$tpos = $rpos + 20;
-		$maptail{$name}{$tpos}{reverse} = $tail{$junction};
+		$cdownstream = complement($downstream);
+		$length = length($cdownstream);
+		$ref = substr($chr{$name}, $rpos - $length + 20, $length);
+		if ($ref eq $cdownstream){
+		    $tpos = $rpos + 20;
+		    if ($length > length($maptail{$name}{$tpos}{reverse})){
+			$maptail{$name}{$tpos}{reverse} = $downstream;
+		    }
+		}
 	    }
 	    last if $pos == -1 and $rpos == -1;
 	}
     }
 }
 
-open(OUT, "> tif.result");
+open(OUT, "> $target/result.$head.$tail");
 foreach $chr (sort keys %maphead){
     foreach $pos (sort bynumber keys %{$maphead{$chr}}){
         foreach $direction (sort keys %{$maphead{$chr}{$pos}}){
@@ -179,7 +240,7 @@ foreach $chr (sort keys %maphead){
                     $tsd_size = abs($pos - $i) + 1;
                     $tsd_head =  substr($upstream, length($upstream) - $tad_size, $tsd_size);
                     $tsd_tail =  substr($downstream, 0, $tsd_size);
-                    print "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$tsd_tail\t$direction\t$upstream\t$downstream\n";
+                    print STDERR "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$tsd_tail\t$direction\t$upstream\t$downstream\n";
 		    print OUT "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$tsd_tail\t$direction\t$upstream\t$downstream\n";
                }
             }
@@ -187,25 +248,50 @@ foreach $chr (sort keys %maphead){
     }
 }
 close(OUT);
-($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($start);
-printf STDERR ("TIF Start: %04d/%02d/%02d %02d:%02d:%02d\n", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+
 $end = time();
-($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($end);
-printf STDERR ("TIF End: %04d/%02d/%02d %02d:%02d:%02d\n", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+
+&log("TIF end.");
 
 $elapsed = $end - $start;
-
-print STDERR "$elapsed seconds elapsed.\n";
+$hour = int($elapsed / 3600);
+$min = $elapsed % 3600;
+$sec = $min % 60;
+$min = int($min / 60);
+if ($hour >= 24){
+    $day = int($hour / 24);
+    $hour = $hour % 24;
+}
+if ($day > 1){
+    $etime .= "$day days ";
+}elsif($day == 1){
+    $etime .= "$day day ";
+}
+if ($hour > 1){
+    $etime .= "$hour hours ";
+}elsif($hour == 1){
+    $etime .= "$hour hour ";
+}
+if ($min > 1){
+    $etime .= "$min minutes ";
+}elsif($min == 1){
+    $etime .= "$min minute ";
+}
+if ($sec > 1){
+    $etime .= "$sec seconds ";
+}elsif($sec == 1){
+        $etime .= "$sec second ";
+}
+print STDERR "$etime ($elapsed seconds) elapsed.\n";
+print LOG    "$etime ($elapsed seconds) elapsed.\n";
+close(LOG);
 
 sub addHead{
     my $seq = shift;
     $pos = index($seq, $head);
     $upstream = substr($seq, 0, $pos);
     if (length($upstream) > 20){
-	$junction = substr($upstream, length($upstream) - 20, 20);
-	if (length($upstream) > length($head{$junction})){
-	    $head{$junction} = $upstream;
-	}
+	$head{$upstream} = 1;
     }
 }
 
@@ -216,9 +302,7 @@ sub addTail{
     $downstream = substr($seq, $pos + $hsize, $read_length);
     if (length($downstream) > 20){
         $junction = substr($downstream, 0, 20);
-        if (length($downstream) > length($tail{$junction})){
-	    $tail{$junction} = $downstream;
-        }
+	    $tail{$downstream} = 1;
     }
 }
 
@@ -239,6 +323,20 @@ sub complement{
         }
     }
     return $out;
+}
+
+sub getTimestamp{
+    my $time = shift;
+    $time = time() if $time eq "";
+    ($sec, $min, $hour, $mday, $mon, $year, $wday) = localtime($time);
+    my $timestamp = sprintf ("%04d/%02d/%02d %02d:%02d:%02d", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+    return $timestamp;
+}
+
+sub log{
+    my $comment = shift;
+    print STDERR &getTimestamp() . " $comment\n";
+    print LOG    &getTimestamp() . " $comment\n";
 }
 
 sub bynumber{
