@@ -102,11 +102,11 @@ if (! -e "$target/selected.$head.$tail"){
 	}
 	while(<IN>){
 	    $line = 0 if $line ++ == 3;
-	    if ($total % 10000000 == 0 and $total > 0){
-		print STDERR &getTimestamp() . " $total reads analyzed.\n";
-	    }
 	    if ($line == 2){
 		$total++;
+		if ($total % 10000000 == 0){
+		    print STDERR &getTimestamp() . " $total reads analyzed.\n";
+		}
 		chomp;
 		if (/$head|$tail/){
 		    print OUT "$_\n";
