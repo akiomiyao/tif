@@ -63,15 +63,18 @@ Author: Akio Miyao <miyao\@affrc.go.jp>
 
 ";
 
-$ref    = $ARGV[0];
-$target = $ARGV[1];
-$head   = $ARGV[2];
-$tail   = $ARGV[3];
+$ref        = $ARGV[0];
+$target     = $ARGV[1];
+$head       = $ARGV[2];
+$tail       = $ARGV[3];
+$maxprocess = $ARGV[4];
 
 if ($tail eq ""){
     print $usage;
     exit;
 }
+
+$maxprocess = 4 if $maxprocess eq "";
 
 $start = time();
 open(LOG, "> $target/log.$head.$tail");
@@ -84,44 +87,45 @@ Tail: $tail
 ";
 &log("TIF start.");
 
+if (-d "$target/child"){
+    system("rm -r $target/child");
+}
+
+system("mkdir $target/child");
+
 $hsize = length($head);
 
+$rhead = complement($head);
+$rtail = complement($tail);
+
 if (! -e "$target/selected.$head.$tail"){
-    open(OUT, "> $target/selected.$head.$tail");
     opendir(DIR, "$target/read");
     foreach $file (sort readdir(DIR)){
 	next if $file =~ /^\./;
 	if ($file =~ /.gz$/){
-	    open(IN, "zcat $target/read/$file |");
+	    $catcmd = "zcat";
 	}elsif($file =~ /.bz2$/){
-	    open(IN, "bzcat $target/read/$file |");
+	    $catcmd = "bzcat";
 	}elsif($file =~ /.xz$/){
-	    open(IN, "xzcat $target/read/$file |");
+	    $catcmd = "xzcat";
 	}else{
-	    open(IN, "$target/read/$file");
+	    $catcmd = "cat";
 	}
-	while(<IN>){
-	    $line = 0 if $line ++ == 3;
-	    if ($line == 2){
-		$total++;
-		if ($total % 10000000 == 0){
-		    print STDERR &getTimestamp() . " $total reads analyzed.\n";
-		}
-		chomp;
-		if (/$head|$tail/){
-		    print OUT "$_\n";
-		    next;
-		}
-		$comp = &complement($_);
-		if ($comp =~ /$head|$tail/){
-		    print OUT "$_\n";
-		    next;
-		}
-	    }
-	}
-	close(IN);
+	&waitFork;
+	&log("searching $head in $file");
+	system("touch $target/child/$head.$file && $catcmd $target/read/$file | grep $head > $target/tmp.$file.$head && rm $target/child/$head.$file &");
+	&waitFork;
+	&log("searching $tail in $file");
+	system("touch $target/child/$tail.$file && $catcmd $target/read/$file | grep $tail > $target/tmp.$file.$tail && rm $target/child/$tail.$file &");
+	&waitFork;
+	&log("searching $rhead in $file");
+	system("touch $target/child/$rhead.$file && $catcmd $target/read/$file | grep $rhead > $target/tmp.$file.$rhead && rm $target/child/$rhead.$file &");
+	&waitFork;
+	&log("searching $rtail in $file");
+	system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
+	&waitFork;
+	system("cat $target/tmp.* > $target/selected.$head.$tail && rm $target/tmp.*");
     }
-    close(OUT);
 }
 
 open(IN, "$target/selected.$head.$tail");
@@ -131,6 +135,12 @@ while(<IN>){
 	&addHead($_);
     }elsif(/$tail/){
 	&addTail($_);
+    }
+    $comp = &complement($_);
+    if ($comp =~ /$head/){
+	&addHead($comp);
+    }elsif($comp =~ /$tail/){
+	&addTail($comp);
     }
 }
 close(IN);
@@ -171,6 +181,7 @@ foreach $upstream (sort keys %head){
 		$ref = substr($chr{$name}, $pos - $length + 20, $length);
 		if ($ref eq $upstream){
 		    $tpos = $pos + 20;
+		    $mhc{$name}{$tpos} ++;
 		    if ($length > length($maphead{$name}{$tpos}{forward})){
 			$maphead{$name}{$tpos}{forward} = $upstream;
 		    }
@@ -183,6 +194,7 @@ foreach $upstream (sort keys %head){
 		$ref = substr($chr{$name}, $rpos, $length);
 		if ($ref eq $cupstream){
 		    $tpos = $rpos + 1;
+		    $mhc{$name}{$tpos} ++;
 		    if ($length > length($maphead{$name}{$tpos}{reverse})){
 			$maphead{$name}{$tpos}{reverse} = $upstream;
 		    }
@@ -207,6 +219,7 @@ foreach $downstream (sort keys %tail){
 		$ref = substr($chr{$name}, $pos, $length);
 		if ($ref eq $downstream){
 		    $tpos = $pos + 1;
+		    $mtc{$name}{$tpos} ++;
 		    if ($length > length($maptail{$name}{$tpos}{forward})){
 			$maptail{$name}{$tpos}{forward} = $downstream;
 		    }
@@ -219,6 +232,7 @@ foreach $downstream (sort keys %tail){
 		$ref = substr($chr{$name}, $rpos - $length + 20, $length);
 		if ($ref eq $cdownstream){
 		    $tpos = $rpos + 20;
+		    $mtc{$name}{$tpos} ++;
 		    if ($length > length($maptail{$name}{$tpos}{reverse})){
 			$maptail{$name}{$tpos}{reverse} = $downstream;
 		    }
@@ -240,8 +254,8 @@ foreach $chr (sort keys %maphead){
                     $tsd_size = abs($pos - $i) + 1;
                     $tsd_head =  substr($upstream, length($upstream) - $tad_size, $tsd_size);
                     $tsd_tail =  substr($downstream, 0, $tsd_size);
-                    print STDERR "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$tsd_tail\t$direction\t$upstream\t$downstream\n";
-		    print OUT "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$tsd_tail\t$direction\t$upstream\t$downstream\n";
+                    print STDERR "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$tsd_tail\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
+		    print OUT "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$tsd_tail\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
                }
             }
         }
@@ -323,6 +337,21 @@ sub complement{
         }
     }
     return $out;
+}
+
+sub waitFork{
+    my $count;
+    while(1){
+	sleep 1;
+	$count = 0;
+	opendir(DIR, "$target/child");
+	foreach(sort readdir(DIR)){
+	    if ($_ !~ /^\./){
+		$count++;
+	    }
+	}
+	return if $count < $maxprocess;
+    }
 }
 
 sub getTimestamp{
