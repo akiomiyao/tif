@@ -74,6 +74,15 @@ if ($tail eq ""){
     exit;
 }
 
+$uname = `uname`;
+chomp($uname);
+if ($uname eq "Linux"){
+    open(IN, "/proc/cpuinfo");
+    while(<IN>){
+        $maxprocess ++  if /processor/;
+    }
+    close(IN);
+}
 $maxprocess = 4 if $maxprocess eq "";
 
 $start = time();
@@ -83,6 +92,7 @@ Reference: $ref
 Target: $target
 Head: $head
 Tail: $tail
+Max process: $maxprocess
 
 ";
 &log("TIF start.");
@@ -123,9 +133,9 @@ if (! -e "$target/selected.$head.$tail"){
 	&waitFork;
 	&log("searching $rtail in $file");
 	system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
-	&waitFork;
-	system("cat $target/tmp.* > $target/selected.$head.$tail && rm $target/tmp.*");
     }
+    &waitAll;
+    system("cat $target/tmp.* > $target/selected.$head.$tail && rm $target/tmp.*");
 }
 
 open(IN, "$target/selected.$head.$tail");
@@ -351,6 +361,21 @@ sub waitFork{
 	    }
 	}
 	return if $count < $maxprocess;
+    }
+}
+
+sub waitAll{
+    my $count;
+    while(1){
+	sleep 1;
+	$count = 0;
+	opendir(DIR, "$target/child");
+	foreach(sort readdir(DIR)){
+	    if ($_ !~ /^\./){
+		$count++;
+	    }
+	}
+	return if $count == 0;
     }
 }
 
