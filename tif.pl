@@ -74,6 +74,14 @@ if ($tail eq ""){
     exit;
 }
 
+if ($ref =~ /^sub:/){
+    ($name = $ref ) =~ s/sub://;
+    system("touch $target/child/map.$head.$tail.$name");
+    &map();
+    system("rm $target/child/map.$head.$tail.$name");
+    exit;
+}
+
 $uname = `uname`;
 chomp($uname);
 if ($uname eq "Linux"){
@@ -102,8 +110,6 @@ if (-d "$target/child"){
 }
 
 system("mkdir $target/child");
-
-$hsize = length($head);
 
 $rhead = complement($head);
 $rtail = complement($tail);
@@ -134,28 +140,16 @@ if (! -e "$target/selected.$head.$tail"){
 	&log("searching $rtail in $file");
 	system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
     }
-    &waitAll;
+    &join;
     system("cat $target/tmp.* > $target/selected.$head.$tail && rm $target/tmp.*");
 }
 
-open(IN, "$target/selected.$head.$tail");
-while(<IN>){
-    chomp;
-    if (/$head/){
-	&addHead($_);
-    }elsif(/$tail/){
-	&addTail($_);
-    }
-    $comp = &complement($_);
-    if ($comp =~ /$head/){
-	&addHead($comp);
-    }elsif($comp =~ /$tail/){
-	&addTail($comp);
-    }
-}
-close(IN);
-
 &log("Reading chromosome sequences.");
+
+if (-e "chr"){
+    system("rm -r chr");
+}
+system("mkdir chr");
 
 if ($ref =~ /.gz$/){
     open(IN, "zcat $ref |");
@@ -171,87 +165,42 @@ while(<IN>){
     if (/^>/){
         s/^>//;
         $name = (split)[0];
+	open(OUT, "> chr/$name");
+	push(@chr, $name);
     }else{
-	y/acgtn/ACGTN/;
-	$chr{$name} .= $_;
+	y/a-z/A-Z/;
+	y/ACGT/N/c;
+	print OUT $_;
     }
 }
 close(IN);
+close(OUT);
 
-&log("Mapping of junction of head.");
+foreach $name (@chr){
+    &log("Mapping of junction in $name.");
+    system("perl tif.pl sub:$name $target $head $tail &");
+}
 
-foreach $upstream (sort keys %head){
-    $junction = substr($upstream, length($upstream) - 20, 20);
-    $rjunction = complement($junction);
-    foreach $name (sort keys %chr){
-	while (1) {
-	    $pos = index($chr{$name}, $junction, $pos + 1);
-	    if ($pos > -1){
-		$length = length($upstream);
-		$ref = substr($chr{$name}, $pos - $length + 20, $length);
-		if ($ref eq $upstream){
-		    $tpos = $pos + 20;
-		    $mhc{$name}{$tpos} ++;
-		    if ($length > length($maphead{$name}{$tpos}{forward})){
-			$maphead{$name}{$tpos}{forward} = $upstream;
-		    }
-		}
-	    }
-	    $rpos = index($chr{$name}, $rjunction, $rpos + 1);
-	    if ($rpos > -1){
-		$cupstream = complement($upstream);
-		$length = length($cupstream);
-		$ref = substr($chr{$name}, $rpos, $length);
-		if ($ref eq $cupstream){
-		    $tpos = $rpos + 1;
-		    $mhc{$name}{$tpos} ++;
-		    if ($length > length($maphead{$name}{$tpos}{reverse})){
-			$maphead{$name}{$tpos}{reverse} = $upstream;
-		    }
-		}
-	    }
-	    last if $pos == -1 and $rpos == -1;
+&join;
+
+open(IN, "cat $target/map.$head.$tail.* |");
+while(<IN>){
+    chomp;
+    @row = split('\t', $_);
+    if ($row[0] eq "head"){
+	if (length($row[4]) > length($maphead{$row[1]}{$row[2]}{$row[3]})){
+	    $maphead{$row[1]}{$row[2]}{$row[3]} = $row[4];
+	    $mhc{$row[1]}{$row[2]} ++;
+	}
+    }else{
+	if (length($row[4]) > length($maptail{$row[1]}{$row[2]}{$row[3]})){
+	    $maptail{$row[1]}{$row[2]}{$row[3]} = $row[4];
+	    $mtc{$row[1]}{$row[2]} ++;
 	}
     }
 }
-
-&log("Mapping of junction of tail.");
-
-foreach $downstream (sort keys %tail){
-    $junction = substr($downstream, 0, 20);
-    $rjunction = complement($junction);
-    foreach $name (sort keys %chr){
-	while (1) {
-	    $pos = index($chr{$name}, $junction, $pos + 1);
-	    if ($pos > -1){
-		$downstream = $downstream;
-		$length = length($downstream);
-		$ref = substr($chr{$name}, $pos, $length);
-		if ($ref eq $downstream){
-		    $tpos = $pos + 1;
-		    $mtc{$name}{$tpos} ++;
-		    if ($length > length($maptail{$name}{$tpos}{forward})){
-			$maptail{$name}{$tpos}{forward} = $downstream;
-		    }
-		}
-	    }
-	    $rpos = index($chr{$name}, $rjunction, $rpos + 1);
-	    if ($rpos > -1){
-		$cdownstream = complement($downstream);
-		$length = length($cdownstream);
-		$ref = substr($chr{$name}, $rpos - $length + 20, $length);
-		if ($ref eq $cdownstream){
-		    $tpos = $rpos + 20;
-		    $mtc{$name}{$tpos} ++;
-		    if ($length > length($maptail{$name}{$tpos}{reverse})){
-			$maptail{$name}{$tpos}{reverse} = $downstream;
-		    }
-		}
-	    }
-	    last if $pos == -1 and $rpos == -1;
-	}
-    }
-}
+close(IN);
+system("rm $target/map.$head.$tail.*");
 
 open(OUT, "> $target/result.$head.$tail");
 foreach $chr (sort keys %maphead){
@@ -310,6 +259,119 @@ print STDERR "$etime ($elapsed seconds) elapsed.\n";
 print LOG    "$etime ($elapsed seconds) elapsed.\n";
 close(LOG);
 
+sub map{
+    open(IN, "$target/selected.$head.$tail");
+    while(<IN>){
+	chomp;
+	if (/$head/){
+	    &addHead($_);
+	}elsif(/$tail/){
+	    &addTail($_);
+	}
+	$comp = &complement($_);
+	if ($comp =~ /$head/){
+	    &addHead($comp);
+	}elsif($comp =~ /$tail/){
+	    &addTail($comp);
+	}
+    }
+    close(IN);
+    
+    open(OUT, "> $target/map.$head.$tail.$name");
+    open(CHR, "chr/$name");
+    binmode(CHR);
+    my $bp = 0;
+    while(1){
+	if ($bp == 0){
+	    seek(CHR, $bp, 0);
+	    read(CHR, $tmp, 100500);
+	    for ($i = 0; $i < 10; $i++){
+		$seq .= "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN";
+	    }
+	    $seq .= $tmp;
+	}else{
+	    seek(CHR, $bp - 500, 0);
+	    read(CHR, $seq, 101000);
+	}
+	last if length($seq) == 0;
+	foreach $upstream (sort keys %head){
+	    $junction = substr($upstream, length($upstream) - 20, 20);
+	    $rjunction = complement($junction);
+	    while (1) {
+		$pos = index($seq, $junction, $pos + 1);
+		if ($pos > 500){
+		    $length = length($upstream);
+		    $ref = substr($seq, $pos - $length + 20, $length);
+		    if ($ref eq $upstream){
+			$tpos = $bp + $pos + 20 - 500;
+			if ($length > length($maphead{$name}{$tpos}{forward})){
+			    print OUT "head\t$name\t$tpos\tforward\t$upstream\n";
+			}
+		    }
+		}elsif($pos == -1){
+		    last;
+		}
+	    }
+	    while(1){
+		$rpos = index($seq, $rjunction, $rpos + 1);
+		if ($rpos > 500){
+		    $cupstream = complement($upstream);
+		    $length = length($cupstream);
+		    $ref = substr($seq, $rpos, $length);
+		    if ($ref eq $cupstream){
+			$tpos = $bp + $rpos + 1 - 500;
+			if ($length > length($maphead{$name}{$tpos}{reverse})){
+			    print OUT "head\t$name\t$tpos\treverse\t$upstream\n";
+			}
+		    }
+		}elsif($rpos == -1){
+		    last;
+		}
+	    }
+	}
+	    
+	foreach $downstream (sort keys %tail){
+	    $junction = substr($downstream, 0, 20);
+	    $rjunction = complement($junction);
+	    while (1) {
+		$pos = index($seq, $junction, $pos + 1);
+		if ($pos > 500){
+		    $downstream = $downstream;
+		    $length = length($downstream);
+		    $ref = substr($seq, $pos, $length);
+		    if ($ref eq $downstream){
+			$tpos = $bp + $pos + 1 - 500;
+			if ($length > length($maptail{$name}{$tpos}{forward})){
+			    print OUT "tail\t$name\t$tpos\tforward\t$downstream\n";
+			}
+		    }
+		}elsif($pos == -1){
+		    last;
+		}
+	    }
+	    while(1){	
+		$rpos = index($seq, $rjunction, $rpos + 1);
+		if ($rpos > 500){
+		    $cdownstream = complement($downstream);
+		    $length = length($cdownstream);
+		    $ref = substr($seq, $rpos - $length + 20, $length);
+		    if ($ref eq $cdownstream){
+			$tpos = $bp + $rpos + 20 - 500;
+			if ($length > length($maptail{$name}{$tpos}{reverse})){
+			    print OUT "tail\t$name\t$tpos\treverse\t$downstream\n";
+			}
+		    }
+		}elsif($rpos == -1){
+		    last;
+		}
+	    }
+	}
+	$bp += 100000;
+    }
+    close(CHR);
+    close(OUT);
+}
+
 sub addHead{
     my $seq = shift;
     $pos = index($seq, $head);
@@ -321,6 +383,7 @@ sub addHead{
 
 sub addTail{
     my $seq = shift;
+    $hsize = length($head);
     $read_length = length($seq);
     $pos = index($seq, $tail);
     $downstream = substr($seq, $pos + $hsize, $read_length);
@@ -364,7 +427,7 @@ sub waitFork{
     }
 }
 
-sub waitAll{
+sub join{
     my $count;
     while(1){
 	sleep 1;
