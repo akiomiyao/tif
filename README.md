@@ -7,6 +7,23 @@ Transposon Insertion Finder (TIF) is a search program to detect insertions of tr
 TIF is one of the fastest and the smallest program among analysis programs of next generation sequencing (NGS). The distinctive feature of TIF is direct selection containing end sequences of the target transposable element from short reads of NGS.
 
 ### Update
+- tif.pl has been improved. (2021-03-23)  
+
+     *e.g.* perl tif.pl ref.fasta target TGTTAAATATATATACA TTGCAAGTTAGTTAAGA  
+     First argument is the path of reference sequence with multi-fasta format.  
+     Second argument is the target directory containing read directory.  
+     Third argument is the head sequence of transposon.  
+     Fourth argument is the tail sequence of transposon.  
+     Fifth argument is maximun number of process (optional).  
+     All short reads (*e.g* name_r1.fastq, name_r2.fastq) in 'target/read' directory will be analyzed.  
+     Run without argument, help will be shown. 
+     
+     *e.g.*
+     perl tif.pl IRGSP-1.0_genome.fasta ttm5 TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
+
+     This version does not depend on BLAST search. Search script was included in tif.pl.  
+     This update is for the multi-core environment.
+     tip.pl is upward compatible with tif2.pl.  
 - New script tif_nonltr.pl is implemented. (2020-08-19)  
   tif_nonltr.pl detects insertions of non-LTR retrotransposons.  
   perl tif_nonltr.pl  
@@ -16,19 +33,6 @@ TIF is one of the fastest and the smallest program among analysis programs of ne
      If you do not have reference genome sequnce, try tif_flanking.pl.  
      tif_flanking outputs flanking sequence of transposon insertion in fasta format.  
      Run without argument, help will be shown.  
-
-- New script tif.pl is implemented. (2019-03-19)  
-
-     *e.g.* perl tif.pl ref.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA  
-     First argument is the path of reference sequence with multi-fasta format.  
-     Second argument is the head sequence of transposon.  
-     Third argument is the tail sequence of transposon.  
-     All short reads (*e.g* name_r1.fastq, name_r2.fastq) in './read' directory will be analyzed.  
-     Run without argument, help will be shown. 
-
-     This version does not depend on BLAST search. Search script was included in tif.pl.  
-     tip.pl is upward compatible with tif2.pl.  
-     
 - TIF is a powerful tool.  
      Sensitive detection of pre-integration intermediates of long terminal repeat retrotransposons in crop plants  
      Jungnam Cho, Matthias Benoit, Marco Catoni, Hajk-Georg Drost, Anna Brestovitsky, Matthijs Oosterbeek, Jerzy Paszkowski  
