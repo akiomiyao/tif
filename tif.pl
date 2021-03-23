@@ -32,8 +32,7 @@
 
 $usage = "    $0 - Transposon Insertion Finder
 
-    For example,
-    perl $0 reference.fasta target head_sequence tail_sequence
+    perl $0 reference.fasta target head_sequence tail_sequence (max_process_number)
 
     For endogenous retrotransposon Tos17 in rice,
     perl $0 IRGSP-1.0_genome.fasta.gz ttm5 TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
@@ -51,13 +50,16 @@ $usage = "    $0 - Transposon Insertion Finder
 
     Result and log are saved in target directory.
 
-    Compressed file with gz, bz2 and xz extentions will be analyzed
-    without pre-decompression. 
+    Compressed read and genome files with gz, bz2 and xz extentions
+    will be analyzed without pre-decompression. 
 
     reference.fasta is the reference sequence with multi-fasta format.
     head_sequence is a short sequence at 5'-end of target transposon.
     tail_sequence is a short sequence at 3'-end of target transposon.
     Length of head_seq and short_seq shold be from 17 to 21 bp.
+    max_process_number is optional. Default number of maximun process
+    is number of CPUs.
+    
 
 Author: Akio Miyao <miyao\@affrc.go.jp>
 
@@ -163,20 +165,77 @@ if ($ref =~ /.gz$/){
 while(<IN>){
     chomp;
     if (/^>/){
-        s/^>//;
+	$pos += 0;
+	if ($seq eq ""){
+	    $pos = 0;
+	}else{
+	    while(1){
+		$filename = "000000000" . $pos;
+		$filename = substr($filename, length($filename) - 10, 10);
+		$filename = $name . "-" . $filename;
+		if ($pos == 0){
+		    push(@chr, $filename);
+		    for($i = 0; $i < 50; $i++){
+			$fragment .= "NNNNNNNNNN";
+		    }
+		    $fragment .= substr($seq, $pos, 1000500);
+		    open(OUT, "> chr/$filename");
+		    print OUT $fragment;
+		    close(OUT);
+		}else{
+		    $fragment = substr($seq, $pos - 500, 1001000);
+		    if ($fragment eq ""){
+			$seq = "";
+			$pos = 0;
+			last;
+		    }
+		    push(@chr, $filename);
+		    open(OUT, "> chr/$filename");
+		    print OUT $fragment;
+		    close(OUT);
+		}
+		$pos += 1000000;
+	    }
+	}
+	s/^>//;
         $name = (split)[0];
-	open(OUT, "> chr/$name");
-	push(@chr, $name);
     }else{
 	y/a-z/A-Z/;
 	y/ACGT/N/c;
-	print OUT $_;
+	$seq .= $_;
     }
 }
 close(IN);
-close(OUT);
+while(1){
+    $filename = "000000000" . $pos;
+    $filename = substr($filename, length($filename) - 10, 10);
+    $filename = $name . "-" . $filename;
+    if ($pos == 0){
+	push(@chr, $filename);
+	for($i = 0; $i < 50; $i++){
+	    $fragment .= "NNNNNNNNNN";
+	}
+	$fragment .= substr($seq, $pos, 1000500);
+	open(OUT, "> chr/$filename");
+	print OUT $fragment;
+	close(OUT);
+    }else{
+	$fragment = substr($seq, $pos - 500, 1001000);
+	if ($fragment eq ""){
+	    $seq = "";
+	    $pos = 0;
+	    last;
+	}
+	push(@chr, $filename);
+	open(OUT, "> chr/$filename");
+	print OUT $fragment;
+	close(OUT);
+    }
+    $pos += 1000000;
+}
 
 foreach $name (@chr){
+    &waitFork;
     &log("Mapping of junction in $name.");
     system("perl tif.pl sub:$name $target $head $tail &");
 }
@@ -279,96 +338,82 @@ sub map{
     
     open(OUT, "> $target/map.$head.$tail.$name");
     open(CHR, "chr/$name");
-    binmode(CHR);
-    my $bp = 0;
-    while(1){
-	if ($bp == 0){
-	    seek(CHR, $bp, 0);
-	    read(CHR, $tmp, 100500);
-	    for ($i = 0; $i < 10; $i++){
-		$seq .= "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN";
-	    }
-	    $seq .= $tmp;
-	}else{
-	    seek(CHR, $bp - 500, 0);
-	    read(CHR, $seq, 101000);
-	}
-	last if length($seq) == 0;
-	foreach $upstream (sort keys %head){
-	    $junction = substr($upstream, length($upstream) - 20, 20);
-	    $rjunction = complement($junction);
-	    while (1) {
-		$pos = index($seq, $junction, $pos + 1);
-		if ($pos > 500){
-		    $length = length($upstream);
-		    $ref = substr($seq, $pos - $length + 20, $length);
-		    if ($ref eq $upstream){
-			$tpos = $bp + $pos + 20 - 500;
-			if ($length > length($maphead{$name}{$tpos}{forward})){
-			    print OUT "head\t$name\t$tpos\tforward\t$upstream\n";
-			}
-		    }
-		}elsif($pos == -1){
-		    last;
-		}
-	    }
-	    while(1){
-		$rpos = index($seq, $rjunction, $rpos + 1);
-		if ($rpos > 500){
-		    $cupstream = complement($upstream);
-		    $length = length($cupstream);
-		    $ref = substr($seq, $rpos, $length);
-		    if ($ref eq $cupstream){
-			$tpos = $bp + $rpos + 1 - 500;
-			if ($length > length($maphead{$name}{$tpos}{reverse})){
-			    print OUT "head\t$name\t$tpos\treverse\t$upstream\n";
-			}
-		    }
-		}elsif($rpos == -1){
-		    last;
-		}
-	    }
-	}
-	    
-	foreach $downstream (sort keys %tail){
-	    $junction = substr($downstream, 0, 20);
-	    $rjunction = complement($junction);
-	    while (1) {
-		$pos = index($seq, $junction, $pos + 1);
-		if ($pos > 500){
-		    $downstream = $downstream;
-		    $length = length($downstream);
-		    $ref = substr($seq, $pos, $length);
-		    if ($ref eq $downstream){
-			$tpos = $bp + $pos + 1 - 500;
-			if ($length > length($maptail{$name}{$tpos}{forward})){
-			    print OUT "tail\t$name\t$tpos\tforward\t$downstream\n";
-			}
-		    }
-		}elsif($pos == -1){
-		    last;
-		}
-	    }
-	    while(1){	
-		$rpos = index($seq, $rjunction, $rpos + 1);
-		if ($rpos > 500){
-		    $cdownstream = complement($downstream);
-		    $length = length($cdownstream);
-		    $ref = substr($seq, $rpos - $length + 20, $length);
-		    if ($ref eq $cdownstream){
-			$tpos = $bp + $rpos + 20 - 500;
-			if ($length > length($maptail{$name}{$tpos}{reverse})){
-			    print OUT "tail\t$name\t$tpos\treverse\t$downstream\n";
-			}
-		    }
-		}elsif($rpos == -1){
-		    last;
-		}
-	    }
-	}
-	$bp += 100000;
-    }
+    my $seq = <CHR>;
     close(CHR);
+    my ($chr, $bp) = split('-', $name);
+    $bp += 0;
+    foreach $upstream (sort keys %head){
+	$junction = substr($upstream, length($upstream) - 20, 20);
+	$rjunction = complement($junction);
+	while (1) {
+	    $pos = index($seq, $junction, $pos + 1);
+	    if ($pos > 500){
+		$length = length($upstream);
+		$ref = substr($seq, $pos - $length + 20, $length);
+		if ($ref eq $upstream){
+		    $tpos = $bp + $pos + 20 - 500;
+		    if ($length > length($maphead{$chr}{$tpos}{forward})){
+			print OUT "head\t$chr\t$tpos\tforward\t$upstream\n";
+		    }
+		}
+	    }elsif($pos == -1){
+		last;
+	    }
+	}
+	while(1){
+	    $rpos = index($seq, $rjunction, $rpos + 1);
+	    if ($rpos > 500){
+		$cupstream = complement($upstream);
+		$length = length($cupstream);
+		$ref = substr($seq, $rpos, $length);
+		if ($ref eq $cupstream){
+		    $tpos = $bp + $rpos + 1 - 500;
+		    if ($length > length($maphead{$chr}{$tpos}{reverse})){
+			print OUT "head\t$chr\t$tpos\treverse\t$upstream\n";
+		    }
+		}
+	    }elsif($rpos == -1){
+		last;
+	    }
+	}
+    }
+    
+    foreach $downstream (sort keys %tail){
+	$junction = substr($downstream, 0, 20);
+	$rjunction = complement($junction);
+	while (1) {
+	    $pos = index($seq, $junction, $pos + 1);
+	    if ($pos > 500){
+		$downstream = $downstream;
+		$length = length($downstream);
+		$ref = substr($seq, $pos, $length);
+		if ($ref eq $downstream){
+		    $tpos = $bp + $pos + 1 - 500;
+		    if ($length > length($maptail{$chr}{$tpos}{forward})){
+			print OUT "tail\t$chr\t$tpos\tforward\t$downstream\n";
+		    }
+		}
+	    }elsif($pos == -1){
+		last;
+	    }
+	}
+	while(1){	
+	    $rpos = index($seq, $rjunction, $rpos + 1);
+	    if ($rpos > 500){
+		$cdownstream = complement($downstream);
+		$length = length($cdownstream);
+		$ref = substr($seq, $rpos - $length + 20, $length);
+		if ($ref eq $cdownstream){
+		    $tpos = $bp + $rpos + 20 - 500;
+		    if ($length > length($maptail{$chr}{$tpos}{reverse})){
+			print OUT "tail\t$chr\t$tpos\treverse\t$downstream\n";
+		    }
+		}
+	    }elsif($rpos == -1){
+		last;
+	    }
+	}
+    }
     close(OUT);
 }
 
@@ -415,7 +460,7 @@ sub complement{
 sub waitFork{
     my $count;
     while(1){
-	sleep 1;
+	select undef, undef, undef, 0.1;
 	$count = 0;
 	opendir(DIR, "$target/child");
 	foreach(sort readdir(DIR)){
