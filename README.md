@@ -22,7 +22,7 @@ TIF is one of the fastest and the smallest program among analysis programs of ne
      perl tif.pl IRGSP-1.0_genome.fasta ttm5 TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
 
      This version does not depend on BLAST search. Search script was included in tif.pl.  
-     This update is for the multi-core environment.
+     This update is for the multi-core environment.  
      tip.pl is upward compatible with tif2.pl.  
 - New script tif_nonltr.pl is implemented. (2020-08-19)  
   tif_nonltr.pl detects insertions of non-LTR retrotransposons.  
@@ -58,26 +58,21 @@ If you got scripts from github, update to newest version is very easy using pull
 ### Static data required by TIF (for demonstration)
 
 For example,  
-% perl tif.pl IRGSP-1.0_genome.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
+% perl tif.pl IRGSP-1.0_genome.fasta target TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
 
 or  
 
-% perl tif.pl TAIR10_chr_all.fas GAGGGATCATCTCTTGTGTC GACTGGCCAGACGATTATTC
+% perl tif.pl TAIR10_chr_all.fas target GAGGGATCATCTCTTGTGTC GACTGGCCAGACGATTATTC
 
 or
 
-% perl tif.pl dmel-all-chromosome-r6.29.fasta CATGATGAAATAACAT ATGTTATTTCATCATG
+% perl tif.pl dmel-all-chromosome-r6.29.fasta target CATGATGAAATAACAT ATGTTATTTCATCATG
 
-Before run tif.pl, download fastq file in read directory.
+Before run tif.pl, download fastq file in target/read directory.
 
-Result will be saved to tif.result file.  
+Result will be saved to tif.result file in the target directory.  
 
 The tif.pl is easy to use and has high sensitivity rather than old programs.  
-But old programs described below, tif_basic.pl and blast.pl (Algorithm 1) and tif_extended (Algorithm 2) are
-faster than tif.pl.  
-Old programs do not analyze complementary sequences of fastq.  
-The function of tif_flanking.pl is same as tif_basic.pl, but tif_flanking.pl analyzes  
-complementary sequences from fastq. It means that tif_flanking is more sensitive but slow.
 
 For *Tos17* retrotransposon of rice
 
@@ -130,20 +125,26 @@ In your home directory,
 
 For ttm2 (Rice mutant)
 
-        cd tif/read
         fastq-dump --split-files -A SRR556173
     
 For ttm5 (Rice mutant)
 
-        cd tif/read
         fastq-dump --split-files -A SRR556174
         fastq-dump --split-files -A SRR556175
     
 For *D. melanogaster*
 
-        cd tif/read
         fastq-dump --split-files -A SRR823377
         fastq-dump --split-files -A SRR823382
+
+for tif.pl,  
+fastq files must save in tif/target/read directory.  
+
+target name can be changed to your fevorite.  
+
+for old programs,  
+fastq files must save in tif/read directory.  
+
 
 ### BLAST programs
 
