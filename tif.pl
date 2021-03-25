@@ -76,11 +76,11 @@ if ($tail eq ""){
     exit;
 }
 
-if ($ref =~ /^sub:/){
-    ($name = $ref ) =~ s/sub://;
-    system("touch $target/child/map.$head.$tail.$name");
-    &map();
-    system("rm $target/child/map.$head.$tail.$name");
+if ($ref =~ /:/){
+    ($sub, $name) = split(':', $ref);
+    system("touch $target/child/$sub.$head.$tail.$name");
+    &$sub();
+    system("rm $target/child/$sub.$head.$tail.$name");
     exit;
 }
 
@@ -90,6 +90,21 @@ if ($uname eq "Linux"){
     open(IN, "/proc/cpuinfo");
     while(<IN>){
         $maxprocess ++  if /processor/;
+    }
+    close(IN);
+}elsif ($uname eq "FreeBSD"){
+    open(IN, "sysctl kern.smp.cpus |");
+    while(<IN>){
+	chomp;
+	$maxprocess = (split(': ', $_))[1];
+    }
+    close(IN);
+}elsif($uname eq "Darwin"){
+    $zcat = "gzcat";
+    open(IN, "sysctl hw.logicalcpu |");
+    while(<IN>){
+	chomp;
+	$maxprocess = (split(': ', $_))[1];
     }
     close(IN);
 }
@@ -143,7 +158,7 @@ if (! -e "$target/selected.$head.$tail"){
 	system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
     }
     &join;
-    system("cat $target/tmp.* > $target/selected.$head.$tail && rm $target/tmp.*");
+    system("cat $target/tmp.* > $target/grep.$head.$tail && rm $target/tmp.*");
 }
 
 &log("Reading chromosome sequences.");
@@ -236,8 +251,33 @@ while(1){
 
 foreach $name (@chr){
     &waitFork;
+    &log("Selecting reads in $name.");
+    system("perl tif.pl select:$name $target $head $tail &");
+}
+
+&join;
+
+open(IN, "cat $target/tmp.$head.$tail.* |");
+while(<IN>){
+    chomp;
+    @row = split;
+    $count{$row[0]} += $row[1];
+}
+close(IN);
+
+open(OUT, "> $target/selected.$head.$tail");
+foreach (sort keys %count){
+    if ($count{$_} == 0){
+	print OUT "$_\n";
+    }
+}
+close(OUT);
+system("rm $target/tmp.$head.$tail.*");
+
+foreach $name (@chr){
+    &waitFork;
     &log("Mapping of junction in $name.");
-    system("perl tif.pl sub:$name $target $head $tail &");
+    system("perl tif.pl map:$name $target $head $tail &");
 }
 
 &join;
@@ -318,6 +358,43 @@ print STDERR "$etime ($elapsed seconds) elapsed.\n";
 print LOG    "$etime ($elapsed seconds) elapsed.\n";
 close(LOG);
 
+sub select{
+    $rhead = complement($head);
+    $rtail = complement($tail);
+    open(IN, "$target/grep.$head.$tail");
+    while(<IN>){
+	chomp;
+	$read{$_} = 0;
+    }
+    close(IN);
+    open(CHR, "chr/$name");
+    my $seq = <CHR>;
+    close(CHR);
+    foreach $read (sort keys %read){
+	foreach ($head, $tail, $rhead, $rtail){
+	    $pos = index($read, $_);
+	    if ($pos > -1){
+		$tmp = substr($read, $pos - 20, 40);
+		last;
+	    }
+	}
+	$pos = index($seq, $tmp, 0);
+	if ($pos != -1){
+	    $read{$read} = 1;
+	}
+	$comp = complement($tmp);
+	$pos = index($seq, $comp, 0);
+	if ($pos != -1){
+	    $read{$read} = 1;
+	}
+    }
+    open(OUT, "> $target/tmp.$head.$tail.$name");
+    foreach (sort keys %read){
+	print OUT "$_\t$read{$_}\n";
+    }
+    close(OUT);
+}
+
 sub map{
     open(IN, "$target/selected.$head.$tail");
     while(<IN>){
@@ -384,7 +461,6 @@ sub map{
 	while (1) {
 	    $pos = index($seq, $junction, $pos + 1);
 	    if ($pos > 500){
-		$downstream = $downstream;
 		$length = length($downstream);
 		$ref = substr($seq, $pos, $length);
 		if ($ref eq $downstream){
@@ -428,13 +504,10 @@ sub addHead{
 
 sub addTail{
     my $seq = shift;
-    $hsize = length($head);
-    $read_length = length($seq);
     $pos = index($seq, $tail);
-    $downstream = substr($seq, $pos + $hsize, $read_length);
+    $downstream = substr($seq, $pos + length($tail));
     if (length($downstream) > 20){
-        $junction = substr($downstream, 0, 20);
-	    $tail{$downstream} = 1;
+	$tail{$downstream} = 1;
     }
 }
 
