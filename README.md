@@ -9,13 +9,14 @@ TIF is one of the fastest and the smallest program among analysis programs of ne
 ### Update
 - tif.pl has been improved. (2021-03-23)  
 
-     *e.g.* perl tif.pl ref.fasta target TGTTAAATATATATACA TTGCAAGTTAGTTAAGA  
+     *e.g.* perl tif.pl reference_genome.fasta target_directory TE_head_sequence TE_tail_sequence  
      First argument is the path of reference sequence with multi-fasta format.  
      Second argument is the target directory containing read directory.  
      Third argument is the head sequence of transposon.  
      Fourth argument is the tail sequence of transposon.  
      Fifth argument is maximun number of process (optional).  
      All short reads (*e.g* name_r1.fastq, name_r2.fastq) in 'target/read' directory will be analyzed.  
+     TE_head and TE_tail sequences are 17-23 bases of 5'-end, and 3'-end of the transposable element.  
      Run without argument, help will be shown. 
      
      *e.g.*
@@ -23,7 +24,6 @@ TIF is one of the fastest and the smallest program among analysis programs of ne
 
      This version does not depend on BLAST search. Search script was included in tif.pl.  
      This update is for the multi-core environment.  
-     tip.pl is upward compatible with tif2.pl.  
 - New script tif_nonltr.pl is implemented. (2020-08-19)  
   tif_nonltr.pl detects insertions of non-LTR retrotransposons.  
   perl tif_nonltr.pl  
@@ -51,11 +51,11 @@ or
 
 % git clone https://github.com/akiomiyao/tif.git  
 
-If you got scripts from github, update to newest version is very easy using pull command of git.  
+If you got scripts from github, update to newest version is very easy using git pull command.  
 
 % git pull  
 
-### Static data required by TIF (for demonstration)
+### Demonstration of tif.pl
 
 For example,  
 % perl tif.pl IRGSP-1.0_genome.fasta target TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
@@ -70,7 +70,7 @@ or
 
 Before run tif.pl, download fastq file in target/read directory.
 
-Result will be saved to tif.result file in the target directory.  
+Result will be saved to result.head_sequence.tail_sequence file in the target directory.  
 
 The tif.pl is easy to use and has high sensitivity rather than old programs.  
 
@@ -87,7 +87,6 @@ For *mPing* transposon of rice (DNA type transposon)
       Head of mPing: GGCCAGTCACAATGGGG
       Tail of mPing: AGCCATTGTGACTGGCC
       Size of TSD: 3
-      Because TSD of mPing is too short, extended TIF is recommended. 
 
 For *nDart* transposon of rice (DNA type transposon)
 
@@ -120,7 +119,7 @@ Download sra tool kit from
 
 In your home directory,
 
-      tar xvfz sratoolkit.2.9.6-centos_linux64.tar.gz
+      tar xvfz sratoolkit.2.x.x-xxxxxx_linux64.tar.gz
       copy fastq-dump in bin directory to executable directory.
 
 For ttm2 (Rice mutant)
@@ -138,15 +137,15 @@ For *D. melanogaster*
         fastq-dump --split-files -A SRR823382
 
 for tif.pl,  
-fastq files must save in tif/target/read directory.  
+fastq files are saved in tif/target/read directory.  
 
 target name can be changed to your fevorite.  
 
 for old programs,  
-fastq files must save in tif/read directory.  
+fastq files are saved in tif/read directory.  
 
 
-### BLAST programs
+### BLAST for old scripts
 
 Download BLAST programs 
 
@@ -178,7 +177,7 @@ For *Drosophira melanogaster*
       makeblastdb -in dmel-all-chromosome-r6.29.fasta -dbtype nucl 
 
 
-### Search targets of transposon
+### Search targets of transposon using old scripts.
 
 Run without any arguments, help message is shown.
 
@@ -212,13 +211,6 @@ To test TIF algorithm 2
       perl tif_extended.pl IRGSP-1.0_genome.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
       
 The tif_extended.pl returns both tif.fasta and tif.position files.
-
-For new extended tif
-
-      cd tif
-      perl tif.pl IRGSP-1.0_genome.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
-
-The tif.pl reads nucleotide sequence of rice genome saved in chr directory, position of junction will be detected by text search against the genome sequence. This enable to detect insertions even on repetitive loci.
 
 ### Citing TIF
 
