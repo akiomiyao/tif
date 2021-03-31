@@ -2,9 +2,9 @@
 
 ### Transposon Insertion Finder
 
-Transposon Insertion Finder (TIF) is a search program to detect insertions of transposable element from short reads of next generation sequencer. The program is written in a perl script. The program runs on Unix (Linux) platform. The TIF requires short sequences of both ends of target transposable element and length of target site duplication (TSD). Basic TIF (tif_basic.pl) does not require reference genome sequence to select short reads containing target sites, whereas extended TIF (tif_extended require the reference sequence and BLAST program.
+Transposon Insertion Finder (TIF) is a search program to detect insertions of transposable element from short reads of next generation sequencer. The program is written in a perl script. The program runs on Unix (Linux) platform. The TIF requires short sequences of both ends of target transposable element. Basic TIF (tif_basic.pl) does not require reference genome sequence to select short reads containing target sites, whereas extended TIF (tif_extended require the reference sequence and BLAST program). Length of target site duplication (TSD) is required by tif_basic.pl and tif_original.pl.  
 
-TIF is one of the fastest and the smallest program among analysis programs of next generation sequencing (NGS). The distinctive feature of TIF is direct selection containing end sequences of the target transposable element from short reads of NGS.
+TIF (tif_original.pl) is one of the fastest and the smallest program among analysis programs of next generation sequencing (NGS). The distinctive feature of TIF is direct selection containing end sequences of the target transposable element from short reads of NGS.
 
 ### Update
 - tif.pl has been improved. (2021-03-23)  
@@ -113,14 +113,20 @@ For *Hi* of *Arabidopsis thaliana*
 
 ### To obtain short read data
 
-Download sra tool kit from
+Download sra tool kit from  
 
       https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=software
 
-In your home directory,
+In your home directory,  
 
       tar xvfz sratoolkit.2.x.x-xxxxxx_linux64.tar.gz
       copy fastq-dump in bin directory to executable directory.
+
+Detail of fastq-dump setup is described in  
+
+    https://akiomiyao.github.io/ped/sratoolkit/index.html (English)  
+
+    https://akiomiyao.github.io/ped/sratoolkit/index_ja.html (Japanese)
 
 For ttm2 (Rice mutant)
 
@@ -137,15 +143,18 @@ For *D. melanogaster*
         fastq-dump --split-files -A SRR823382
 
 for tif.pl,  
-fastq files are saved in tif/target/read directory.  
+fastq files saved in tif/target/read directory are analyzed.  
 
 target name can be changed to your fevorite.  
 
 for old programs,  
-fastq files are saved in tif/read directory.  
+fastq files saved in tif/read directory are analyzed.  
 
 
-### BLAST for old scripts
+### BLAST
+
+BLAST is required by blast.pl and tif_extended.pl.  
+New script, tif.pl, does not require BLAST.  
 
 Download BLAST programs 
 
@@ -177,9 +186,9 @@ For *Drosophira melanogaster*
       makeblastdb -in dmel-all-chromosome-r6.29.fasta -dbtype nucl 
 
 
-### Search targets of transposon using old scripts.
+### Search insertions of transposon by tif_basic.pl, blast.pl and tif_extended.pl
 
-Run without any arguments, help message is shown.
+Run without any arguments, help message will be shown.
 
 Save fastq files in read directory.
 
@@ -197,7 +206,8 @@ To test TIF algorithm 1
       perl tif_basic.pl TGTTAAATATATATACA TTGCAAGTTAGTTAAGA 5
       perl blast.pl IRGSP-1.0_genome.fasta
            
-Output of tif_basic.pl is tif.fasta, a multiple FASTA file.
+Output of tif_basic.pl is tif.fasta, a multiple FASTA file.  
+tif.fasta will be saved in tif directory.  
   
 The blast.pl reads tif.fasta and returns tif.position containing location and direction of TE insertion sites.
 
@@ -210,7 +220,7 @@ To test TIF algorithm 2
       cd tif
       perl tif_extended.pl IRGSP-1.0_genome.fasta TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
       
-The tif_extended.pl returns both tif.fasta and tif.position files.
+The tif_extended.pl returns both tif.fasta and tif.position files in the tif directory.
 
 ### Citing TIF
 
