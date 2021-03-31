@@ -115,7 +115,7 @@ For *Hi* of *Arabidopsis thaliana*
 
 Download sra tool kit from  
 
-      https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=software
+https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=software
 
 In your home directory,  
 
@@ -124,9 +124,9 @@ In your home directory,
 
 Detail of fastq-dump setup is described in  
 
-    https://akiomiyao.github.io/ped/sratoolkit/index.html (English)  
+https://akiomiyao.github.io/ped/sratoolkit/index.html (English)  
 
-    https://akiomiyao.github.io/ped/sratoolkit/index_ja.html (Japanese)
+https://akiomiyao.github.io/ped/sratoolkit/index_ja.html (Japanese)
 
 For ttm2 (Rice mutant)
 
@@ -158,10 +158,10 @@ New script, tif.pl, does not require BLAST.
 
 Download BLAST programs 
 
-      ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.9.0+-x64-linux.tar.gz
+ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.9.0+-x64-linux.tar.gz
 
 New version of BLAST can be downloaded from 
-      https://ftp.ncbi.nlm.nih.gov/blast/executables/
+https://ftp.ncbi.nlm.nih.gov/blast/executables/
       
 Copy blastn and makeblastdb to executable directory.    
      cp ncbi-blast-2.9.0+/bin/blastn ~/bin    
