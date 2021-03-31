@@ -39,7 +39,7 @@ TIF (tif_original.pl) is one of the fastest and the smallest program among analy
      Nature Plants, 5:26–33 (2019)  
      https://doi.org/10.1038/s41477-018-0320-9  
 
-     Mobilization of Pack-CACTA transposons in Arabidopsis suggests the mechanism of gene shuffling  
+     Mobilization of Pack-CACTA transposons in *Arabidopsis* suggests the mechanism of gene shuffling  
      Marco Catoni, Thomas Jonesman, Elisa Cerruti, Jerzy Paszkowski  
      Nucleic Acids Research, 47(3):1311–1320 (2019)  
      https://doi.org/10.1093/nar/gky1196  
