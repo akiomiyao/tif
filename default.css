@@ -1,0 +1,13 @@
+h1{
+    padding: 0.2em 0.5em;
+    color: #494949;
+    background: #f4fff4;
+    padding 0.5em;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.23);
+}
+h2{
+    padding: 0.2em 0.5em;
+    color: #494949;
+    background: #f4fff4;
+    border-left: solid 5px #27e887;
+}
