@@ -157,7 +157,7 @@ if (! -e "$target/selected.$head.$tail"){
 	&log("searching $rtail in $file");
 	system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
     }
-    &join;
+    &waitGrep;
     system("cat $target/tmp.* > $target/grep.$head.$tail && rm $target/tmp.*");
 }
 
@@ -323,7 +323,7 @@ close(OUT);
 
 $end = time();
 
-&log("TIF end.");
+&log("TIF end. $target");
 
 $elapsed = $end - $start;
 $hour = int($elapsed / 3600);
@@ -542,6 +542,22 @@ sub waitFork{
 	    }
 	}
 	return if $count < $maxprocess;
+    }
+}
+
+sub waitGrep{
+    my $count;
+    while(1){
+	select undef, undef, undef, 0.1;
+	$count = 0;
+	open(IN, "ps xaww |");
+	while(<IN>){
+	    $count ++ if /grep/;
+	}
+	if ($count == 0){
+	    system("rm $target/child/*");
+	    last;
+	}
     }
 }
 
