@@ -147,13 +147,13 @@ if (! -e "$target/selected.$head.$tail"){
 	&waitFork;
 	&log("searching $head in $file");
 	system("touch $target/child/$head.$file && $catcmd $target/read/$file | grep $head > $target/tmp.$file.$head && rm $target/child/$head.$file &");
-	&waitFork;
+	&waitGrep;
 	&log("searching $tail in $file");
 	system("touch $target/child/$tail.$file && $catcmd $target/read/$file | grep $tail > $target/tmp.$file.$tail && rm $target/child/$tail.$file &");
-	&waitFork;
+	&waitGrep;
 	&log("searching $rhead in $file");
 	system("touch $target/child/$rhead.$file && $catcmd $target/read/$file | grep $rhead > $target/tmp.$file.$rhead && rm $target/child/$rhead.$file &");
-	&waitFork;
+	&waitGrep;
 	&log("searching $rtail in $file");
 	system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
     }
