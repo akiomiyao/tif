@@ -554,10 +554,19 @@ sub waitGrep{
 	while(<IN>){
 	    $count ++ if /grep/;
 	}
+	close(IN);
 	if ($count == 0){
-	    system("rm $target/child/*");
-	    last;
+	    system("rm $target/child/* > /dev/null 2>&1");
 	}
+	$count = 0;
+	opendir(DIR, "$target/child");
+	foreach(sort readdir(DIR)){
+	    if ($_ !~ /^\./){
+		$count++;
+	    }
+	}
+	closedir(DIR);
+	return if $count < $maxprocess;
     }
 }
 
