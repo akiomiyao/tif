@@ -158,6 +158,7 @@ if (! -e "$target/selected.$head.$tail"){
 	system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
     }
     &waitGrep;
+    &join;
     system("cat $target/tmp.* > $target/grep.$head.$tail && rm $target/tmp.*");
 }
 
@@ -558,7 +559,6 @@ sub waitGrep{
 	if ($count == 0){
 	    system("rm $target/child/* > /dev/null 2>&1");
 	}
-	$count = 0;
 	opendir(DIR, "$target/child");
 	foreach(sort readdir(DIR)){
 	    if ($_ !~ /^\./){
