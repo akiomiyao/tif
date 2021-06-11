@@ -59,9 +59,15 @@ $usage = "    $0 - Transposon Insertion Finder
     Length of head_seq and short_seq shold be from 17 to 21 bp.
     max_process_number is optional. Default number of maximun process
     is number of CPUs.
-    
 
-Author: Akio Miyao <miyao\@affrc.go.jp>
+    Result is result.head_sequence.tail_sequence file in the target directory.
+
+    Result format: chromosome, junction of head_seq, junction of tail_seq,
+    TSD size, TSD, direction of insertion, flanking sequence of head,
+    flanking sequence of tail, number of flanking sequence of head,
+    number of flanking sequence of tail.    
+
+Author: MIYAO Akio <miyao\@affrc.go.jp>
 
 ";
 
@@ -82,6 +88,11 @@ if ($ref =~ /:/){
     &$sub();
     system("rm $target/child/$sub.$head.$tail.$name");
     exit;
+}else{
+    if (-d "$target/child"){
+	system("rm -r $target/child");
+    }
+    system("mkdir $target/child");
 }
 
 $uname = `uname`;
@@ -122,12 +133,6 @@ Max process: $maxprocess
 ";
 &log("TIF start.");
 
-if (-d "$target/child"){
-    system("rm -r $target/child");
-}
-
-system("mkdir $target/child");
-
 $rhead = complement($head);
 $rtail = complement($tail);
 
@@ -147,18 +152,17 @@ if (! -e "$target/selected.$head.$tail"){
 	&waitFork;
 	&log("searching $head in $file");
 	system("touch $target/child/$head.$file && $catcmd $target/read/$file | grep $head > $target/tmp.$file.$head && rm $target/child/$head.$file &");
-	&waitGrep;
+	&waitFork;
 	&log("searching $tail in $file");
 	system("touch $target/child/$tail.$file && $catcmd $target/read/$file | grep $tail > $target/tmp.$file.$tail && rm $target/child/$tail.$file &");
-	&waitGrep;
+	&waitFork;
 	&log("searching $rhead in $file");
 	system("touch $target/child/$rhead.$file && $catcmd $target/read/$file | grep $rhead > $target/tmp.$file.$rhead && rm $target/child/$rhead.$file &");
-	&waitGrep;
+	&waitFork;
 	&log("searching $rtail in $file");
 	system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
     }
-    &waitGrep;
-    &join;
+    &joinAfterGrep;
     system("cat $target/tmp.* > $target/grep.$head.$tail && rm $target/tmp.*");
 }
 
@@ -311,11 +315,13 @@ foreach $chr (sort keys %maphead){
                 if ($maptail{$chr}{$i}{$direction} ne ""){
                     $downstream = $maptail{$chr}{$i}{$direction};
                     $tsd_size = abs($pos - $i) + 1;
-                    $tsd_head =  substr($upstream, length($upstream) - $tad_size, $tsd_size);
+                    $tsd_head =  substr($upstream, length($upstream) - $tsd_size, $tsd_size);
                     $tsd_tail =  substr($downstream, 0, $tsd_size);
-                    print STDERR "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$tsd_tail\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
-		    print OUT "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$tsd_tail\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
-               }
+		    if ($tsd_head eq $tsd_tail){
+			print STDERR "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
+			print OUT "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
+		    }
+		}
             }
         }
     }
@@ -546,10 +552,10 @@ sub waitFork{
     }
 }
 
-sub waitGrep{
+sub joinAfterGrep{
     my $count;
     while(1){
-	select undef, undef, undef, 0.1;
+	sleep 1;
 	$count = 0;
 	open(IN, "ps xaww |");
 	while(<IN>){
@@ -558,15 +564,16 @@ sub waitGrep{
 	close(IN);
 	if ($count == 0){
 	    system("rm $target/child/* > /dev/null 2>&1");
+	    return;
 	}
+	$count = 0;
 	opendir(DIR, "$target/child");
 	foreach(sort readdir(DIR)){
 	    if ($_ !~ /^\./){
 		$count++;
 	    }
 	}
-	closedir(DIR);
-	return if $count < $maxprocess;
+	return if $count == 0;
     }
 }
 
