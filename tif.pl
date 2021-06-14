@@ -151,16 +151,32 @@ if (! -e "$target/selected.$head.$tail"){
 	}
 	&waitFork;
 	&log("searching $head in $file");
-	system("touch $target/child/$head.$file && $catcmd $target/read/$file | grep $head > $target/tmp.$file.$head && rm $target/child/$head.$file &");
+	if ($catcmd eq "cat"){
+	    system("touch $target/child/$head.$file && grep $head $target/read/$file > $target/tmp.$file.$head && rm $target/child/$head.$file &");
+	}else{
+	    system("touch $target/child/$head.$file && $catcmd $target/read/$file | grep $head > $target/tmp.$file.$head && rm $target/child/$head.$file &");
+	}
 	&waitFork;
 	&log("searching $tail in $file");
-	system("touch $target/child/$tail.$file && $catcmd $target/read/$file | grep $tail > $target/tmp.$file.$tail && rm $target/child/$tail.$file &");
+	if ($catcmd eq "cat"){
+	    system("touch $target/child/$tail.$file && grep $tail $target/read/$file > $target/tmp.$file.$tail && rm $target/child/$tail.$file &");
+	}else{
+	    system("touch $target/child/$tail.$file && $catcmd $target/read/$file | grep $tail > $target/tmp.$file.$tail && rm $target/child/$tail.$file &");
+	}
 	&waitFork;
 	&log("searching $rhead in $file");
-	system("touch $target/child/$rhead.$file && $catcmd $target/read/$file | grep $rhead > $target/tmp.$file.$rhead && rm $target/child/$rhead.$file &");
+	if ($catcmd eq "cat"){
+	    system("touch $target/child/$rhead.$file && grep $rhead $target/read/$file > $target/tmp.$file.$rhead && rm $target/child/$rhead.$file &");
+	}else{
+	    system("touch $target/child/$rhead.$file && $catcmd $target/read/$file | grep $rhead > $target/tmp.$file.$rhead && rm $target/child/$rhead.$file &");
+	}
 	&waitFork;
 	&log("searching $rtail in $file");
-	system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
+	if ($catcmd eq "cat"){
+	    system("touch $target/child/$rtail.$file && grep $rtail $target/read/$file > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
+	}else{
+	    system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
+	}
     }
     &joinAfterGrep;
     system("cat $target/tmp.* > $target/grep.$head.$tail && rm $target/tmp.*");
