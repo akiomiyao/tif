@@ -273,7 +273,7 @@ while(1){
 foreach $name (@chr){
     &waitFork;
     &log("Selecting reads in $name.");
-    system("perl tif.pl select:$name $target $head $tail &");
+    system("perl $0 select:$name $target $head $tail &");
 }
 
 &join;
@@ -298,7 +298,7 @@ system("rm $target/tmp.$head.$tail.*");
 foreach $name (@chr){
     &waitFork;
     &log("Mapping of junction in $name.");
-    system("perl tif.pl map:$name $target $head $tail &");
+    system("perl $0 map:$name $target $head $tail &");
 }
 
 &join;
@@ -342,6 +342,29 @@ foreach $chr (sort keys %maphead){
         }
     }
 }
+close(OUT);
+
+$timestamp = `date '+%Y-%m-%d %H:%M:%S %z'`;
+chomp($timestamp);
+$filedate = (split('\ ', $timestamp))[0];
+$filedate =~ y/-//d;
+open(IN,"$target/result.$head.$tail");
+open(OUT,"> $target/$head.$tail.vcf");
+print OUT "##fileformat=VCFv4.3
+##fileDate=$filedate
+##source=<PROGRAM=tif.pl,target=$target,reference=$ref>
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description=\"Type of structural variant\">
+##INFO=<ID=MEINFO,Number=9,Type=String,Description=\"Movile element info of the form ME_HEAD_SEQ,ME_TAIL_SEQ,JUNCTION_POS_OF_HEAD,JUNCTION_POS_OF_TAIL,TSD_SIZE,TSD_SEQUENCE,DIRECTION,COUNT_OF_READS_WITH_JUNCTION_OF_HEAD,COUNT_OF_READ_WITH_JUNCTION_OF_TAIL\">
+##ALT=<ID=INS:ME,Type=String,Description=\"Insertion of a mobile element\">
+##created=<TIMESTAMP=\"$timestamp\">
+#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n";
+while(<IN>){
+    chomp;
+    @row = split;
+    $rnuc = substr($row[6], length($row[6]) - 1, 1);
+    print OUT "$row[0]\t$row[1]\t.\t$rnuc\t<INS:ME>\t.\t.\tMEINFO=$head,$tail,$row[1],$row[2],$row[3],$row[4],$row[5],$row[8],$row[9];SVTYPE=INS\n";
+}
+close(IN);
 close(OUT);
 
 $end = time();
