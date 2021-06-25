@@ -354,7 +354,7 @@ print OUT "##fileformat=VCFv4.3
 ##fileDate=$filedate
 ##source=<PROGRAM=tif.pl,target=$target,reference=$ref>
 ##INFO=<ID=SVTYPE,Number=1,Type=String,Description=\"Type of structural variant\">
-##INFO=<ID=MEINFO,Number=9,Type=String,Description=\"Movile element info of the form ME_HEAD_SEQ,ME_TAIL_SEQ,JUNCTION_POS_OF_HEAD,JUNCTION_POS_OF_TAIL,TSD_SIZE,TSD_SEQUENCE,DIRECTION,COUNT_OF_READS_WITH_JUNCTION_OF_HEAD,COUNT_OF_READ_WITH_JUNCTION_OF_TAIL\">
+##INFO=<ID=MEINFO,Number=9,Type=String,Description=\"Movile element info of the form ME_HEAD_SEQ,ME_TAIL_SEQ,JUNCTION_POS_OF_HEAD,JUNCTION_POS_OF_TAIL,TSD_SIZE,TSD_SEQUENCE,DIRECTION,COUNT_OF_READS_WITH_JUNCTION_OF_HEAD,COUNT_OF_READS_WITH_JUNCTION_OF_TAIL\">
 ##ALT=<ID=INS:ME,Type=String,Description=\"Insertion of a mobile element\">
 ##created=<TIMESTAMP=\"$timestamp\">
 #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n";
