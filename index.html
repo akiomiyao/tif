@@ -17,7 +17,8 @@ Paper: <a href = "https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1
 <h2>Detection of <i>Tos17</i> insertion from NGS data</h2>
 <p>Once the NGS sequence data of the <i>Tos17</i> insertion mutant individual is obtained, the insertion site can be easily obtained by the <a href = "https://github.com/akiomiyao/tif" target = "_blank">TIF</a> program. A computer running unix (<a href = "https://ubuntu.com" target = "_blank">ubuntu</a> is good), NGS data, and the rice reference genome sequence (<a href = "https://rapdb.dna.affrc.go.jp/download/irgsp1.html" target = "_blank">IRGSP1.0</a>) are required.
 <p>Following is an example.
-<p>To obtain short read sequence, fastq-dump is required. <a href = "https://akiomiyao.github.io/ped/sratoolkit/index.html" target = "_blank">Link to fastq-dump setup</a> 
+<p>To obtain short read sequence, fastq-dump is required. <a href = "https://akiomiyao.github.io/ped/sratoolkit/index.html" target = "_blank">Link to fastq-dump setup</a><br>
+git clone and wget reference is required at first analysis.
 <pre>$ git clone https://github.com/akiomiyao/tif.git
 $ cd git
 $ mkdir ttm5
@@ -31,32 +32,55 @@ $ wget https://rapdb.dna.affrc.go.jp/download/archive/irgsp1/IRGSP-1.0_genome.fa
 $ perl tif.pl IRGSP-1.0_genome.fasta.gz  ttm5 TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
 </pre>
 <p>'<a href = "https://doi.org/10.1186/1471-2229-10-175" target = "_blank">ttm5</a>' is one of the <i>Tos17</i> insertion line (line name: ND6834). The NGS data of ttm5 was acquired for <a href = "https://doi.org/10.1093/pcp/pcr172" target = "_blank">the analysis of somaclonal variation</a>. ND6834 was harvested as a regenerated individual in October 1998. The individual was regenerated from liquid culture in N6 medium containing 2,4-dichlorophenoxyacetic acid at a concentration of 1 mg/L until March 1998 from the Nipponbare calus induced in October 1997. The individual analyzed by NGS is the M<sub>4</sub> generation, two generations after the harvested seeds. <a href = "https://www.ncbi.nlm.nih.gov/sra/?term=SRR556174" target = "_blank">SRR556174</a> and <a href = "https://www.ncbi.nlm.nih.gov/sra/?term=SRR556175" target = "_blank">SRR556175</a> are run data of ttm5 by Illumina Hiseq2000 sequencing system.
-<p>$ perl tif.pl<br>
-without argument returns how to use tif.pl.<br>
+<p>without argument returns how to use tif.pl.<br>
+$ perl tif.pl<br>
 '$' at the head of line indicates prompt of terminal window.<br>
-git clone and wget reference is required at first analysis.
 <p>$ perl tif.pl reference target_directory 5'-end_of_TE_sequence 3'-end_of_TE_sequence<br>
 For analysis of rice, IRGSP-1.0_genome.fasta.gz is the reference genome sequence.<br>
 <i>Tos17</i> 5'-end (Head) sequence: TGTTAAATATATATACA<br>
 <i>Tos17</i> 3'-end (Tail) sequence: TTGCAAGTTAGTTAAGA<br>
 <p>Result of tif.pl is saved in target (ttm5) directory.
 <pre>
-miyao@s3:~/tif/ttm5$ ls -la
-total 424
-drwxrwxr-x 4 miyao miyao  40960 Apr 21 19:13 ./
-drwxrwxr-x 6 miyao miyao   4096 Apr 21 19:10 ../
-drwxrwxr-x 2 miyao miyao   4096 Apr 21 19:13 child/
--rw-rw-r-- 1 miyao miyao 264216 Apr 21 19:10 grep.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
--rw-rw-r-- 1 miyao miyao  46230 Apr 21 19:13 log.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
-drwxrwxr-x 2 miyao miyao   4096 Apr 21 13:56 read/
--rw-rw-r-- 1 miyao miyao   2380 Apr 21 19:13 result.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
--rw-rw-r-- 1 miyao miyao  55348 Apr 21 19:12 selected.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
+miyao@s2:~/tif/ttm5$ ls -la
+total  432
+drwxr-xr-x 4 miyao miyao  45056 Jun 27 09:25 ./
+drwxrwxr-x 6 miyao miyao   4096 Jun 27 09:22 ../
+-rw-rw-r-- 1 miyao miyao   2096 Jun 27 09:25 TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA.vcf
+drwxrwxr-x 2 miyao miyao   4096 Jun 27 09:25 child/
+-rw-rw-r-- 1 miyao miyao 264216 Jun 25 11:56 grep.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
+-rw-rw-r-- 1 miyao miyao  45127 Jun 27 09:25 log.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
+drwxrwxr-x 2 miyao miyao   4096 Jun 15 15:50 read/
+-rw-rw-r-- 1 miyao miyao   2368 Jun 27 09:25 result.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
+-rw-rw-r-- 1 miyao miyao  55348 Jun 27 09:24 selected.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
 </pre>
-<p>grep.head_seq.tail_seq is a list of short reads containing head_seq or tail_seq.<br>
-selected.head_seq.tail_seq is a list of short reads which are not present in the reference genome sequence.<br>
-log.head_seq.tail_seq is a log of run.<br>
+<p>head_seq.tail_seq.vcf is the result with vcf format.<br>
+grep.head_seq.tail_seq is the list of short reads containing head_seq or tail_seq.<br>
+selected.head_seq.tail_seq is the list of short reads which are not present in the reference genome sequence.<br>
+log.head_seq.tail_seq is the log of run.<br>
 result.head_seq.tail_seq is the result of tif analysis.<br><br>
-
+<b>Result with vcf format</b>
+<pre>miyao@s2:~/tif/ttm5$ cat TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA.vcf 
+##fileformat=VCFv4.3
+##fileDate=20210627
+##source=&lt;PROGRAM=tif.pl,target=ttm5,reference=IRGSP-1.0_genome.fasta&gt;
+##INFO=&lt;ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant"&gt;
+##INFO=&lt;ID=MEINFO,Number=9,Type=String,Description="Movile element info of the form ME_HEAD_SEQ,ME_TAIL_SEQ,JUNCTION_POS_OF_HEAD,JUNCTION_POS_OF_TAIL,TSD_SIZE,TSD_SEQUENCE,DIRECTION,COUNT_OF_READS_WITH_JUNCTION_OF_HEAD,COUNT_OF_READS_WITH_JUNCTION_OF_TAIL"&gt;
+##ALT=&lt;ID=INS:ME,Type=String,Description="Insertion of a mobile element"&gt;
+##created=&lt;TIMESTAMP="2021-06-27 09:25:50 +0900"&gt;
+#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO
+chr01   34453641        .       G       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,34453641,34453645,5,CTTTG,reverse,2,18;SVTYPE=INS
+chr02   1004765 .       C       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,1004765,1004769,5,ATACC,reverse,1,9;SVTYPE=INS
+chr02   31596632        .       T       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,31596632,31596628,5,CTAAT,forward,4,11;SVTYPE=INS
+chr03   741222  .       C       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,741222,741226,5,GCAGC,reverse,1,12;SVTYPE=INS
+chr03   8304674 .       A       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,8304674,8304678,5,GAATA,reverse,2,15;SVTYPE=INS
+chr06   24967877        .       T       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,24967877,24967881,5,TGCAT,reverse,3,19;SVTYPE=INS
+chr07   20064395        .       T       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,20064395,20064391,5,CTTAT,forward,4,24;SVTYPE=INS
+chr07   20080556        .       T       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,20080556,20080552,5,CTTAT,forward,4,24;SVTYPE=INS
+chr09   12970614        .       C       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,12970614,12970618,5,CATGC,reverse,1,19;SVTYPE=INS
+chr10   19069889        .       G       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,19069889,19069885,5,ACTTG,forward,2,8;SVTYPE=INS
+chr10   21583058        .       T       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,21583058,21583054,5,CTTAT,forward,2,7;SVTYPE=INS
+chr12   2155895 .       C       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,2155895,2155899,5,GGAAC,reverse,4,12;SVTYPE=INS
+</pre>
 <b>Table 1.</b> Table of <i>Tos17</i> transposed positions in ttm5. TIF output, 'result.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA' separated with TAB is converted to the html table. TSDs in flanking sequence are indicated with red.
 <table border>
 <tr><th>Chr</th><th>Junction of head</th><th>Junction of tail</th><th>TSD size</th><th>TSD</th><th>Direction</th><th>Head flanking sequence (HFS)</th><th>Tail flanking sequence (TFS)</th><th>Detected number of HFS</th><th>Detected number of TFS</th></tr>
