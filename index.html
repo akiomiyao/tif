@@ -41,32 +41,30 @@ For analysis of rice, IRGSP-1.0_genome.fasta.gz is the reference genome sequence
 <i>Tos17</i> 3'-end (Tail) sequence: TTGCAAGTTAGTTAAGA<br>
 <p>Result of tif.pl is saved in target (ttm5) directory.
 <pre>
-miyao@s2:~/tif/ttm5$ ls -la
-total  432
-drwxr-xr-x 4 miyao miyao  45056 Jun 27 09:25 ./
-drwxrwxr-x 6 miyao miyao   4096 Jun 27 09:22 ../
--rw-rw-r-- 1 miyao miyao   2096 Jun 27 09:25 TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA.vcf
-drwxrwxr-x 2 miyao miyao   4096 Jun 27 09:25 child/
--rw-rw-r-- 1 miyao miyao 264216 Jun 25 11:56 grep.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
--rw-rw-r-- 1 miyao miyao  45127 Jun 27 09:25 log.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
-drwxrwxr-x 2 miyao miyao   4096 Jun 15 15:50 read/
--rw-rw-r-- 1 miyao miyao   2368 Jun 27 09:25 result.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
--rw-rw-r-- 1 miyao miyao  55348 Jun 27 09:24 selected.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
+% ll
+total 508
+drwxrwxr-x  2 miyao  miyao       2 Aug 13 18:23 child/
+lrwxrwxrwx  1 miyao  miyao      22 Aug 13 18:07 read
+-rw-rw-r--  1 miyao  miyao  264216 Aug 13 18:20 tif_grep.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
+-rw-rw-r--  1 miyao  miyao   46568 Aug 13 18:23 tif_log.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
+-rw-rw-r--  1 miyao  miyao    2368 Aug 13 18:23 tif_result.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
+-rw-rw-r--  1 miyao  miyao    2096 Aug 13 18:23 tif_result.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA.vcf
+-rw-rw-r--  1 miyao  miyao   55348 Aug 13 18:22 tif_selected.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA
 </pre>
-<p>head_seq.tail_seq.vcf is the result with vcf format.<br>
-grep.head_seq.tail_seq is the list of short reads containing head_seq or tail_seq.<br>
-selected.head_seq.tail_seq is the list of short reads which are not present in the reference genome sequence.<br>
-log.head_seq.tail_seq is the log of run.<br>
-result.head_seq.tail_seq is the result of tif analysis.<br><br>
+<p>tif_head_seq.tail_seq.vcf is the result with vcf format.<br>
+tif_grep.head_seq.tail_seq is the list of short reads containing head_seq or tail_seq.<br>
+tif_selected.head_seq.tail_seq is the list of short reads which are not present in the reference genome sequence.<br>
+tif_log.head_seq.tail_seq is the log of run.<br>
+tif_result.head_seq.tail_seq is the result of tif analysis.<br><br>
 <b>Result with vcf format</b>
-<pre>miyao@s2:~/tif/ttm5$ cat TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA.vcf 
+<pre>miyao@s2:~/tif/ttm5$ cat tif_TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA.vcf 
 ##fileformat=VCFv4.3
-##fileDate=20210627
+##fileDate=20210813
 ##source=&lt;PROGRAM=tif.pl,target=ttm5,reference=IRGSP-1.0_genome.fasta&gt;
 ##INFO=&lt;ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant"&gt;
 ##INFO=&lt;ID=MEINFO,Number=9,Type=String,Description="Movile element info of the form ME_HEAD_SEQ,ME_TAIL_SEQ,JUNCTION_POS_OF_HEAD,JUNCTION_POS_OF_TAIL,TSD_SIZE,TSD_SEQUENCE,DIRECTION,COUNT_OF_READS_WITH_JUNCTION_OF_HEAD,COUNT_OF_READS_WITH_JUNCTION_OF_TAIL"&gt;
 ##ALT=&lt;ID=INS:ME,Type=String,Description="Insertion of a mobile element"&gt;
-##created=&lt;TIMESTAMP="2021-06-27 09:25:50 +0900"&gt;
+##created=&lt;TIMESTAMP="2021-08-13 18:23:50 +0900"&gt;
 #CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO
 chr01   34453641        .       G       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,34453641,34453645,5,CTTTG,reverse,2,18;SVTYPE=INS
 chr02   1004765 .       C       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,1004765,1004769,5,ATACC,reverse,1,9;SVTYPE=INS
@@ -81,8 +79,8 @@ chr10   19069889        .       G       &lt;INS:ME&gt;        .       .       ME
 chr10   21583058        .       T       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,21583058,21583054,5,CTTAT,forward,2,7;SVTYPE=INS
 chr12   2155895 .       C       &lt;INS:ME&gt;        .       .       MEINFO=TGTTAAATATATATACA,TTGCAAGTTAGTTAAGA,2155895,2155899,5,GGAAC,reverse,4,12;SVTYPE=INS
 </pre>
-<b>Table 1.</b> Table of <i>Tos17</i> transposed positions in ttm5. TIF output, 'result.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA' separated with TAB is converted to the html table. TSDs in flanking sequence are indicated with red.
-<table border>
+<b>Table 1.</b> Table of <i>Tos17</i> transposed positions in ttm5. TIF output, 'tif_result.TGTTAAATATATATACA.TTGCAAGTTAGTTAAGA' separated with TAB is converted to the html table. TSDs in flanking sequence are indicated with red.
+<table border style="font-size : 7pt">
 <tr><th>Chr</th><th>Junction of head</th><th>Junction of tail</th><th>TSD size</th><th>TSD</th><th>Direction</th><th>Head flanking sequence (HFS)</th><th>Tail flanking sequence (TFS)</th><th>Detected number of HFS</th><th>Detected number of TFS</th></tr>
 <tr><td>chr01</td><td align = "right">34453641</td><td align = "right">34453645</td><td align = "center">5</td><td>CTTTG</td><td align = "center">reverse</td><td>AGCAAGAAGTATCTCATCAGAGCCACCTTCACTTATGGAAACTACGATGGGCTCAACTCGTCAGAGAAGGGTT<font color = "red">CTTTG</font></td><td><font color = "red">CTTTG</font>TTTATCTTTGGACTCCATATCGGTGTCAACTTCTGGACGACGGTAAACTTGACAAAGTGGGATCCATCGA</td><td align = "right">2</td><td align = "right">18</td>
 <tr><td>chr02</td><td align = "right">1004765</td><td align = "right">1004769</td><td align = "center">5</td><td>ATACC</td><td align = "center">reverse</td><td>AAATTTGAGATATACCATCCTGACCCACATGTCATTGACTCATGTGGGTTCTACATGTCATTGAT<font color = "red">ATACC</font></td><td><font color = "red">ATACC</font>AATGGCATATCTCAAACTTTGCAAAATTATAATGGCATGGCTCCAATTTACCCTTTT</td><td align = "right">1</td><td align = "right">9</td>
