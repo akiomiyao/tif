@@ -179,7 +179,7 @@ if (! -e "$target/tif_selected.$head.$tail"){
 	}
     }
     &joinAfterGrep;
-    system("cat $target/tmp.* > $target/grep.$head.$tail && rm $target/tmp.*");
+    system("cat $target/tmp.* > $target/tif_grep.$head.$tail && rm $target/tmp.*");
 }
 
 &log("Reading chromosome sequences.");
@@ -407,7 +407,7 @@ close(LOG);
 sub select{
     $rhead = complement($head);
     $rtail = complement($tail);
-    open(IN, "$target/grep.$head.$tail");
+    open(IN, "$target/tif_grep.$head.$tail");
     while(<IN>){
 	chomp;
 	$read{$_} = 0;
