@@ -60,7 +60,7 @@ $usage = "    $0 - Transposon Insertion Finder
     max_process_number is optional. Default number of maximun process
     is number of CPUs.
 
-    Result is result.head_sequence.tail_sequence file in the target directory.
+    Result is tif_result.head_sequence.tail_sequence file in the target directory.
 
     Result format: chromosome, junction of head_seq, junction of tail_seq,
     TSD size, TSD, direction of insertion, flanking sequence of head,
@@ -122,7 +122,7 @@ if ($uname eq "Linux"){
 $maxprocess = 4 if $maxprocess eq "";
 
 $start = time();
-open(LOG, "> $target/log.$head.$tail");
+open(LOG, "> $target/tif_log.$head.$tail");
 print LOG "Program: $0
 Reference: $ref
 Target: $target
@@ -136,7 +136,7 @@ Max process: $maxprocess
 $rhead = complement($head);
 $rtail = complement($tail);
 
-if (! -e "$target/selected.$head.$tail"){
+if (! -e "$target/tif_selected.$head.$tail"){
     opendir(DIR, "$target/read");
     foreach $file (sort readdir(DIR)){
 	next if $file =~ /^\./;
@@ -286,7 +286,7 @@ while(<IN>){
 }
 close(IN);
 
-open(OUT, "> $target/selected.$head.$tail");
+open(OUT, "> $target/tif_selected.$head.$tail");
 foreach (sort keys %count){
     if ($count{$_} == 0){
 	print OUT "$_\n";
@@ -322,7 +322,7 @@ while(<IN>){
 close(IN);
 system("rm $target/map.$head.$tail.*");
 
-open(OUT, "> $target/result.$head.$tail");
+open(OUT, "> $target/tif_result.$head.$tail");
 foreach $chr (sort keys %maphead){
     foreach $pos (sort bynumber keys %{$maphead{$chr}}){
         foreach $direction (sort keys %{$maphead{$chr}{$pos}}){
@@ -348,8 +348,8 @@ $timestamp = `date '+%Y-%m-%d %H:%M:%S %z'`;
 chomp($timestamp);
 $filedate = (split('\ ', $timestamp))[0];
 $filedate =~ y/-//d;
-open(IN,"$target/result.$head.$tail");
-open(OUT,"> $target/$head.$tail.vcf");
+open(IN,"$target/tif_result.$head.$tail");
+open(OUT,"> $target/tif_result.$head.$tail.vcf");
 print OUT "##fileformat=VCFv4.3
 ##fileDate=$filedate
 ##source=<PROGRAM=tif.pl,target=$target,reference=$ref>
@@ -442,7 +442,7 @@ sub select{
 }
 
 sub map{
-    open(IN, "$target/selected.$head.$tail");
+    open(IN, "$target/tif_selected.$head.$tail");
     while(<IN>){
 	chomp;
 	if (/$head/){
