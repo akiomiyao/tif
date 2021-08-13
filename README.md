@@ -60,24 +60,25 @@ If you got scripts from github, update to newest version is very easy using git 
 ### Demonstration of tif.pl
 
 For example,  
-       perl tif.pl IRGSP-1.0_genome.fasta target TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
+
+      perl tif.pl IRGSP-1.0_genome.fasta target TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
 
 or  
 
-       perl tif.pl TAIR10_chr_all.fas target GAGGGATCATCTCTTGTGTC GACTGGCCAGACGATTATTC
+      perl tif.pl TAIR10_chr_all.fas target GAGGGATCATCTCTTGTGTC GACTGGCCAGACGATTATTC
 
 or
 
-       perl tif.pl dmel-all-chromosome-r6.29.fasta target CATGATGAAATAACAT ATGTTATTTCATCATG
+      perl tif.pl dmel-all-chromosome-r6.29.fasta target CATGATGAAATAACAT ATGTTATTTCATCATG
 
 Before run tif.pl, download fastq file in target/read directory.  
 For example, in the case of target name is ttm2  
 
-       cd tif  
-       mkdir ttm2  
-       mkdir ttm2/read  
-       cp somewhere/ttm2.fastq ttm2/read  
-       perl tif.pl IRGSP-1.0_genome.fasta ttm2 TGTTAAATATATATACA TTGCAAGTTAGTTAAGA  
+      cd tif  
+      mkdir ttm2  
+      mkdir ttm2/read  
+      cp somewhere/ttm2.fastq ttm2/read  
+      perl tif.pl IRGSP-1.0_genome.fasta ttm2 TGTTAAATATATATACA TTGCAAGTTAGTTAAGA  
 
 Result will be saved to tif_result.head_sequence.tail_sequence file in the target directory.  
 
