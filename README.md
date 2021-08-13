@@ -80,7 +80,7 @@ For example, in the case of target name is ttm2
       cp somewhere/ttm2.fastq ttm2/read  
       perl tif.pl IRGSP-1.0_genome.fasta ttm2 TGTTAAATATATATACA TTGCAAGTTAGTTAAGA  
 
-Result will be saved to tif_result.head_sequence.tail_sequence file in the target directory.  
+Result will be saved to tif_result.head_sequence.tail_sequence and vcf files in the target directory.  
 
 The tif.pl is easy to use and has high sensitivity rather than old programs.  
 
