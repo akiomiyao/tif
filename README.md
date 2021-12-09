@@ -241,6 +241,7 @@ The tif_extended.pl returns both tif.fasta and tif.position files in the tif dir
 
 ### Update
 
+- 1.7 tif.pl has been improved for multi-core environment. 2021-03-23  
 - 1.6 tif_flanking.pl is implemented 2019-03-21.
 - 1.5 tif.pl is implemented. 2019-03-19
 - 1.4 tif2.pl is improved. 2016-10-22
