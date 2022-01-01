@@ -27,15 +27,17 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-#
-#
 
 $usage = "    $0 - Transposon Insertion Finder
 
     perl $0 reference.fasta target head_sequence tail_sequence (max_process_number)
 
+    Another format
+    perl $0 ref=reference_fasta,target=target,head=head_sequence,tail=tail_sequence,max_process=8,nogenotype=1
+
     For endogenous retrotransposon Tos17 in rice,
     perl $0 IRGSP-1.0_genome.fasta.gz ttm5 TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
+    perl $0 ref=IRGSP-1.0_genome.fasta.gz,target=ttm5,head=TGTTAAATATATATACA,tail=TTGCAAGTTAGTTAAGA,max_process=8,nogenotype=1
 
     For P-element of Drosophila malanogaster
     perl $0 dmel-all-chromosome-r6.26.fasta target CATGATGAAATAACAT ATGTTATTTCATCATG
@@ -58,7 +60,8 @@ $usage = "    $0 - Transposon Insertion Finder
     tail_sequence is a short sequence at 3'-end of target transposon.
     Length of head_seq and short_seq shold be from 17 to 21 bp.
     max_process_number is optional. Default number of maximun process
-    is number of CPUs.
+    is number of CPUs. Calculation of genotype requires long time.
+    If you do not want to genotype data, add 'nogenotype=1' in options.
 
     Result is tif_result.head_sequence.tail_sequence file in the target directory.
 
@@ -67,7 +70,7 @@ $usage = "    $0 - Transposon Insertion Finder
     flanking sequence of tail, number of flanking sequence of head,
     number of flanking sequence of tail.    
 
-Author: MIYAO Akio <miyao\@affrc.go.jp>
+Author: Akio Miyao <miyao\@affrc.go.jp>
 
 ";
 
@@ -75,7 +78,27 @@ $ref        = $ARGV[0];
 $target     = $ARGV[1];
 $head       = $ARGV[2];
 $tail       = $ARGV[3];
-$maxprocess = $ARGV[4];
+
+foreach (@ARGV){
+    if (/,/){
+	foreach (split(',', $_)){
+	    next if $_ eq "";
+	    if (/=/){
+		($name, $value) = split('=', $_);
+		$$name = $value;
+	    }else{
+		$$_ = 1;
+	    }
+	}
+    }else{
+	if (/=/){
+	    ($name, $value) = split('=', $_);
+	    $$name = $value;
+	}else{
+	    $$_ = 1;
+	}
+    }
+}
 
 if ($tail eq ""){
     print $usage;
@@ -93,6 +116,9 @@ if ($ref =~ /:/){
 	system("rm -r $target/child");
     }
     system("mkdir $target/child");
+     if (! -d "$target/tmp"){
+	system("mkdir $target/tmp");
+    }
 }
 
 $uname = `uname`;
@@ -119,7 +145,8 @@ if ($uname eq "Linux"){
     }
     close(IN);
 }
-$maxprocess = 4 if $maxprocess eq "";
+
+$maxprocess = $max_process if $max_process ne "";
 
 $start = time();
 open(LOG, "> $target/tif_log.$head.$tail");
@@ -136,7 +163,7 @@ Max process: $maxprocess
 $rhead = complement($head);
 $rtail = complement($tail);
 
-if (! -e "$target/tif_selected.$head.$tail"){
+if (! -e "$target/tif_grep.$head.$tail"){
     opendir(DIR, "$target/read");
     foreach $file (sort readdir(DIR)){
 	next if $file =~ /^\./;
@@ -152,34 +179,34 @@ if (! -e "$target/tif_selected.$head.$tail"){
 	&waitFork;
 	&log("searching $head in $file");
 	if ($catcmd eq "cat"){
-	    system("touch $target/child/$head.$file && grep $head $target/read/$file > $target/tmp.$file.$head && rm $target/child/$head.$file &");
+	    system("touch $target/child/$head.$file && grep $head $target/read/$file > $target/tmp/tmp.$file.$head && rm $target/child/$head.$file || rm $target/child/$head.$file &");
 	}else{
-	    system("touch $target/child/$head.$file && $catcmd $target/read/$file | grep $head > $target/tmp.$file.$head && rm $target/child/$head.$file &");
+	    system("touch $target/child/$head.$file && $catcmd $target/read/$file | grep $head > $target/tmp/tmp.$file.$head && rm $target/child/$head.$file || rm $target/child/$head.$file &");
 	}
 	&waitFork;
 	&log("searching $tail in $file");
 	if ($catcmd eq "cat"){
-	    system("touch $target/child/$tail.$file && grep $tail $target/read/$file > $target/tmp.$file.$tail && rm $target/child/$tail.$file &");
+	    system("touch $target/child/$tail.$file && grep $tail $target/read/$file > $target/tmp/tmp.$file.$tail && rm $target/child/$tail.$file || rm $target/child/$tail.$file &");
 	}else{
-	    system("touch $target/child/$tail.$file && $catcmd $target/read/$file | grep $tail > $target/tmp.$file.$tail && rm $target/child/$tail.$file &");
+	    system("touch $target/child/$tail.$file && $catcmd $target/read/$file | grep $tail > $target/tmp/tmp.$file.$tail && rm $target/child/$tail.$file || rm $target/child/$tail.$file &");
 	}
 	&waitFork;
 	&log("searching $rhead in $file");
 	if ($catcmd eq "cat"){
-	    system("touch $target/child/$rhead.$file && grep $rhead $target/read/$file > $target/tmp.$file.$rhead && rm $target/child/$rhead.$file &");
+	    system("touch $target/child/$rhead.$file && grep $rhead $target/read/$file > $target/tmp/tmp.$file.$rhead && rm $target/child/$rhead.$file || rm $target/child/$rhead.$file &");
 	}else{
-	    system("touch $target/child/$rhead.$file && $catcmd $target/read/$file | grep $rhead > $target/tmp.$file.$rhead && rm $target/child/$rhead.$file &");
+	    system("touch $target/child/$rhead.$file && $catcmd $target/read/$file | grep $rhead > $target/tmp/tmp.$file.$rhead && rm $target/child/$rhead.$file || rm $target/child/$rhead.$file &");
 	}
 	&waitFork;
 	&log("searching $rtail in $file");
 	if ($catcmd eq "cat"){
-	    system("touch $target/child/$rtail.$file && grep $rtail $target/read/$file > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
+	    system("touch $target/child/$rtail.$file && grep $rtail $target/read/$file > $target/tmp/tmp.$file.$rtail && rm $target/child/$rtail.$file || rm $target/child/$rtail.$file &");
 	}else{
-	    system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp.$file.$rtail && rm $target/child/$rtail.$file &");
+	    system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp/tmp.$file.$rtail && rm $target/child/$rtail.$file || rm $target/child/$rtail.$file &");
 	}
     }
     &joinAfterGrep;
-    system("cat $target/tmp.* > $target/tif_grep.$head.$tail && rm $target/tmp.*");
+    system("cat $target/tmp/tmp.* > $target/tif_grep.$head.$tail && rm $target/tmp/tmp.*");
 }
 
 &log("Reading chromosome sequences.");
@@ -272,55 +299,86 @@ while(1){
 
 foreach $name (@chr){
     &waitFork;
-    &log("Selecting reads in $name.");
-    system("perl $0 select:$name $target $head $tail &");
-}
-
-&join;
-
-open(IN, "cat $target/tmp.$head.$tail.* |");
-while(<IN>){
-    chomp;
-    @row = split;
-    $count{$row[0]} += $row[1];
-}
-close(IN);
-
-open(OUT, "> $target/tif_selected.$head.$tail");
-foreach (sort keys %count){
-    if ($count{$_} == 0){
-	print OUT "$_\n";
-    }
-}
-close(OUT);
-system("rm $target/tmp.$head.$tail.*");
-
-foreach $name (@chr){
-    &waitFork;
     &log("Mapping of junction in $name.");
     system("perl $0 map:$name $target $head $tail &");
 }
 
 &join;
 
-open(IN, "cat $target/map.$head.$tail.* |");
-while(<IN>){
-    chomp;
-    @row = split('\t', $_);
-    if ($row[0] eq "head"){
-	if (length($row[4]) > length($maphead{$row[1]}{$row[2]}{$row[3]})){
-	    $maphead{$row[1]}{$row[2]}{$row[3]} = $row[4];
-	    $mhc{$row[1]}{$row[2]} ++;
+open(IN, "cat $target/tmp/map.$head.$tail.* |");
+opendir (DIR, "chr");
+foreach $chr (sort readdir(DIR)){
+    if (-s "$target/tmp/map.$head.$tail.$chr" > 0){
+	open(IN, "chr/$chr");
+	$seq = <IN>;
+	close(IN);
+        $pos = (split("-", $chr))[1];
+	open(IN, "$target/tmp/map.$head.$tail.$chr");
+	while(<IN>){
+	    chomp;
+	    $wt = "";
+	    @row = split('\t', $_);
+	    if ($row[0] eq "head"){
+		if (length($row[4]) > length($maphead{$row[1]}{$row[2]}{$row[3]})){
+		    $maphead{$row[1]}{$row[2]}{$row[3]} = $row[4];
+		    $mhc{$row[1]}{$row[2]} ++;
+		}
+		if ($wt{$row[1]}{$row[2]} eq ""){
+		    $wt = substr($seq, $row[2] - $pos + 500 - 21, 40);
+		    if (length($wt) == 40 or $wt !~ /NN|\ /){
+			$cwt = complement($wt);
+			$wt{$row[1]}{$row[2]}{f} = $wt;
+			$wt{$row[1]}{$row[2]}{r} = $cwt;
+		    }
+		}
+	    }else{
+		if (length($row[4]) > length($maptail{$row[1]}{$row[2]}{$row[3]})){
+		    $maptail{$row[1]}{$row[2]}{$row[3]} = $row[4];
+		    $mtc{$row[1]}{$row[2]} ++;
+		}
+		if ($wt{$row[1]}{$row[2]} eq ""){
+		    $wt = substr($seq, $row[2] -$pos + 500 - 21, 40);
+		    if (length($wt) == 40 or  $wt !~ /NN|\ /){
+			$cwt = complement($wt);
+			$wt{$row[1]}{$row[2]}{f} = $wt;
+			$wt{$row[1]}{$row[2]}{r} = $cwt;
+		    }
+		}
+	    }
 	}
-    }else{
-	if (length($row[4]) > length($maptail{$row[1]}{$row[2]}{$row[3]})){
-	    $maptail{$row[1]}{$row[2]}{$row[3]} = $row[4];
-	    $mtc{$row[1]}{$row[2]} ++;
-	}
+	close(IN);
     }
 }
-close(IN);
-system("rm $target/map.$head.$tail.*");
+
+if ($nogenotype != 1){
+    system("rm $target/tmp/wt.* > /dev/null 2>&1");
+    opendir(DIR, "$target/read");
+    foreach $file (sort readdir(DIR)){
+	next if $file =~ /^\./;
+	if ($file =~ /.gz$/){
+	    $catcmd = "zcat";
+	}elsif($file =~ /.bz2$/){
+	    $catcmd = "bzcat";
+	}elsif($file =~ /.xz$/){
+	    $catcmd = "xzcat";
+	}else{
+	    $catcmd = "cat";
+	}
+	foreach $chr (sort keys %wt){
+	    foreach $pos (sort bynumber keys %{$wt{$chr}}){
+		foreach $dir (sort bynumber keys %{$wt{$chr}{$pos}}){
+		    $query = $wt{$chr}{$pos}{$dir};
+		    next if $query eq "" or $query =~ /NNNN/;
+		    &waitFork;
+		    &log("searching wt $query in $file");
+		    system("touch $target/child/wt.$chr.$pos.$dir && $catcmd $target/read/$file |grep $query >> $target/tmp/wt.$chr.$pos.$dir && rm $target/child/wt.$chr.$pos.$dir || rm $target/child/wt.$chr.$pos.$dir &");
+		}
+	    }
+	}
+    }
+    closedir(DIR);
+    &joinAfterGrep;
+}
 
 open(OUT, "> $target/tif_result.$head.$tail");
 foreach $chr (sort keys %maphead){
@@ -334,8 +392,24 @@ foreach $chr (sort keys %maphead){
                     $tsd_head =  substr($upstream, length($upstream) - $tsd_size, $tsd_size);
                     $tsd_tail =  substr($downstream, 0, $tsd_size);
 		    if ($tsd_head eq $tsd_tail){
-			print STDERR "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
-			print OUT "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
+			if ($nogenotype){
+			    print STDERR "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
+			    print OUT "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
+			}else{
+			    $count = 0;
+			    open(WT, "cat $target/tmp/wt.$chr.$pos.* |");
+			    while(<WT>){
+				$count++;
+			    }
+			    close(WT);
+			    if ($count > 0){
+				$genotype = "Hetero";
+			    }else{
+				$genotype = "Homo";
+			    }
+			    print STDERR "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\t$count\t$genotype\n";
+			    print OUT "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\t$count\t$genotype\n";
+			}
 		    }
 		}
             }
@@ -350,19 +424,52 @@ $filedate = (split('\ ', $timestamp))[0];
 $filedate =~ y/-//d;
 open(IN,"$target/tif_result.$head.$tail");
 open(OUT,"> $target/tif_result.$head.$tail.vcf");
-print OUT "##fileformat=VCFv4.3
+if ($nogenotype){
+    print OUT "##fileformat=VCFv4.3
 ##fileDate=$filedate
 ##source=<PROGRAM=tif.pl,target=$target,reference=$ref>
 ##INFO=<ID=SVTYPE,Number=1,Type=String,Description=\"Type of structural variant\">
 ##INFO=<ID=MEINFO,Number=9,Type=String,Description=\"Movile element info of the form ME_HEAD_SEQ,ME_TAIL_SEQ,JUNCTION_POS_OF_HEAD,JUNCTION_POS_OF_TAIL,TSD_SIZE,TSD_SEQUENCE,DIRECTION,COUNT_OF_READS_WITH_JUNCTION_OF_HEAD,COUNT_OF_READS_WITH_JUNCTION_OF_TAIL\">
-##ALT=<ID=INS:ME,Type=String,Description=\"Insertion of a mobile element\">
+##INFO=<ID=GT,Number=1,Type=String,Description=\"Genotype\">
+##ALT=<ID=INS,Description=\"Insertion of a mobile element\">
 ##created=<TIMESTAMP=\"$timestamp\">
 #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n";
+}else{
+    print OUT "##fileformat=VCFv4.3
+##fileDate=$filedate
+##source=<PROGRAM=tif.pl,target=$target,reference=$ref>
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description=\"Type of structural variant\">
+##INFO=<ID=MEINFO,Number=9,Type=String,Description=\"Movile element info of the form ME_HEAD_SEQ,ME_TAIL_SEQ,JUNCTION_POS_OF_HEAD,JUNCTION_POS_OF_TAIL,TSD_SIZE,TSD_SEQUENCE,DIRECTION,COUNT_OF_READS_WITH_JUNCTION_OF_HEAD,COUNT_OF_READS_WITH_JUNCTION_OF_TAIL\">
+##INFO=<ID=GT,Number=1,Type=String,Description=\"Genotype\">
+##ALT=<ID=INS,Description=\"Insertion of a mobile element\">
+##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">
+##FORMAT=<ID=AD,Number=.,Type=String,Description=\"Allelic depths for the reference and alternate alleles in the order listed\">
+##FORMAT=<ID=DP,Number=1,Type=String,Description=\"Read Depth\">
+##created=<TIMESTAMP=\"$timestamp\">
+#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t$target\n";
+}
 while(<IN>){
     chomp;
     @row = split;
     $rnuc = substr($row[6], length($row[6]) - 1, 1);
-    print OUT "$row[0]\t$row[1]\t.\t$rnuc\t<INS:ME>\t.\t.\tMEINFO=$head,$tail,$row[1],$row[2],$row[3],$row[4],$row[5],$row[8],$row[9];SVTYPE=INS\n";
+    my $chr;
+    ($chr = $row[0]) =~ s/chr//;
+    $chr += 0 if $chr =~/^[0-9]+$/;
+    if ($nogenotype){
+	print OUT "$chr\t$row[1]\t.\t$rnuc\t$rnuc<INS>\t.\t.\tMEINFO=$head,$tail,$row[1],$row[2],$row[3],$row[4],$row[5],$row[8],$row[9];SVTYPE=INS\n";
+    }else{
+	if ($row[10] > 0){
+	    $gt = "1/0";
+	}else{
+	    $gt = "1/1";
+	}
+	my $total = $row[8] + $row[9] + $row[10];
+	my $alt = $row[8] + $row[9];
+	my $wt = $row[10];
+	my $ad = "$wt,$alt";
+	my $af = int($alt * 1000 / $total) / 1000;
+	print OUT "$chr\t$row[1]\t.\t$rnuc\t$rnuc<INS>\t.\t.\tGT=$gt;AF=$af;DP=$total;MEINFO=$head,$tail,$row[1],$row[2],$row[3],$row[4],$row[5],$row[8],$row[9];SVTYPE=INS\tGT:AD:DP\t$gt:$ad:$total\n";
+    }
 }
 close(IN);
 close(OUT);
@@ -404,45 +511,8 @@ print STDERR "$etime ($elapsed seconds) elapsed.\n";
 print LOG    "$etime ($elapsed seconds) elapsed.\n";
 close(LOG);
 
-sub select{
-    $rhead = complement($head);
-    $rtail = complement($tail);
-    open(IN, "$target/tif_grep.$head.$tail");
-    while(<IN>){
-	chomp;
-	$read{$_} = 0;
-    }
-    close(IN);
-    open(CHR, "chr/$name");
-    my $seq = <CHR>;
-    close(CHR);
-    foreach $read (sort keys %read){
-	foreach ($head, $tail, $rhead, $rtail){
-	    $pos = index($read, $_);
-	    if ($pos > -1){
-		$tmp = substr($read, $pos - 20, 40);
-		last;
-	    }
-	}
-	$pos = index($seq, $tmp, 0);
-	if ($pos != -1){
-	    $read{$read} = 1;
-	}
-	$comp = complement($tmp);
-	$pos = index($seq, $comp, 0);
-	if ($pos != -1){
-	    $read{$read} = 1;
-	}
-    }
-    open(OUT, "> $target/tmp.$head.$tail.$name");
-    foreach (sort keys %read){
-	print OUT "$_\t$read{$_}\n";
-    }
-    close(OUT);
-}
-
 sub map{
-    open(IN, "$target/tif_selected.$head.$tail");
+    open(IN, "$target/tif_grep.$head.$tail");
     while(<IN>){
 	chomp;
 	if (/$head/){
@@ -459,7 +529,7 @@ sub map{
     }
     close(IN);
     
-    open(OUT, "> $target/map.$head.$tail.$name");
+    open(OUT, "> $target/tmp/map.$head.$tail.$name");
     open(CHR, "chr/$name");
     my $seq = <CHR>;
     close(CHR);
