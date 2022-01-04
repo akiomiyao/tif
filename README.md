@@ -9,7 +9,7 @@ TIF (tif_original.pl) is one of the fastest and the smallest program among analy
 Web page: https://akiomiyao.github.io/tif/
 
 ### Update
-- tif.pl genotyping function has been added. (2022-01-04)
+- tif.pl genotyping function has been added. (2022-01-04)  
      Run tif.pl without an argument, help will be shown.
 
 - tif.pl has been improved. (2021-03-23)  
