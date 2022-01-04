@@ -28,16 +28,18 @@
 # SUCH DAMAGE.
 #
 
-$usage = "    $0 - Transposon Insertion Finder
+$usage = "    $0 - Transposon Insertion Finder (Algorithm 2)
 
-    perl $0 reference.fasta target head_sequence tail_sequence (max_process_number)
+    perl $0 reference.fasta target head_sequence tail_sequence
 
     Another format
-    perl $0 ref=reference_fasta,target=target,head=head_sequence,tail=tail_sequence,max_process=8,nogenotype=1
+    perl $0 ref=reference_fasta,target=target,head=head_sequence,tail=tail_sequence,max_process=8,nogenotype
+    max_process and nogenotype are optional.
 
     For endogenous retrotransposon Tos17 in rice,
     perl $0 IRGSP-1.0_genome.fasta.gz ttm5 TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
-    perl $0 ref=IRGSP-1.0_genome.fasta.gz,target=ttm5,head=TGTTAAATATATATACA,tail=TTGCAAGTTAGTTAAGA,max_process=8,nogenotype=1
+    perl $0 ref=IRGSP-1.0_genome.fasta.gz,target=ttm5,head=TGTTAAATATATATACA,tail=TTGCAAGTTAGTTAAGA
+    perl $0 ref=IRGSP-1.0_genome.fasta.gz,target=ttm5,head=TGTTAAATATATATACA,tail=TTGCAAGTTAGTTAAGA,max_process=8,nogenotype
 
     For P-element of Drosophila malanogaster
     perl $0 dmel-all-chromosome-r6.26.fasta target CATGATGAAATAACAT ATGTTATTTCATCATG
@@ -50,7 +52,7 @@ $usage = "    $0 - Transposon Insertion Finder
     cp somewhere/reference_fasta .
     perl $0 reference_fasta target head_sequence tail_sequence
 
-    Result and log are saved in target directory.
+    Result and log will be saved in target directory.
 
     Compressed read and genome files with gz, bz2 and xz extentions
     will be analyzed without pre-decompression. 
@@ -61,16 +63,25 @@ $usage = "    $0 - Transposon Insertion Finder
     Length of head_seq and short_seq shold be from 17 to 21 bp.
     max_process_number is optional. Default number of maximun process
     is number of CPUs. Calculation of genotype requires long time.
-    If you do not want to genotype data, add 'nogenotype=1' in options.
+    If you do not want to genotype data, add 'nogenotype' in the option.
 
     Result is tif_result.head_sequence.tail_sequence file in the target directory.
 
     Result format: chromosome, junction of head_seq, junction of tail_seq,
     TSD size, TSD, direction of insertion, flanking sequence of head,
     flanking sequence of tail, number of flanking sequence of head,
-    number of flanking sequence of tail.    
+    number of flanking sequence of tail, number of wild type reads, genotype.
+    Genotypes M and H are homozygous and heterozygous mutation, respectively.
 
-Author: Akio Miyao <miyao\@affrc.go.jp>
+    Reference:
+    Nakagome, M., Solovieva, E., Takahashi, A., Yasue, H., Hirochika. H., Miyao, A.
+    Transposon Insertion Finder (TIF): a novel program for detection of de novo
+    transpositions of transposable elements.
+    BMC Bioinformatics 15, 71 (2014).
+    https://doi.org/10.1186/1471-2105-15-71
+    GitHub: https://github.com/akiomiyao/tif
+
+    Author: Akio Miyao <miyao\@affrc.go.jp>
 
 ";
 
@@ -179,30 +190,30 @@ if (! -e "$target/tif_grep.$head.$tail"){
 	&waitFork;
 	&log("searching $head in $file");
 	if ($catcmd eq "cat"){
-	    system("touch $target/child/$head.$file && grep $head $target/read/$file > $target/tmp/tmp.$file.$head && rm $target/child/$head.$file || rm $target/child/$head.$file &");
+	    system("touch $target/child/$head.$file.h && grep $head $target/read/$file > $target/tmp/tmp.$file.$head && rm $target/child/$head.$file.h || rm $target/child/$head.$file.h &");
 	}else{
-	    system("touch $target/child/$head.$file && $catcmd $target/read/$file | grep $head > $target/tmp/tmp.$file.$head && rm $target/child/$head.$file || rm $target/child/$head.$file &");
+	    system("touch $target/child/$head.$file.h && $catcmd $target/read/$file | grep $head > $target/tmp/tmp.$file.$head && rm $target/child/$head.$file.h || rm $target/child/$head.$file.h &");
 	}
 	&waitFork;
 	&log("searching $tail in $file");
 	if ($catcmd eq "cat"){
-	    system("touch $target/child/$tail.$file && grep $tail $target/read/$file > $target/tmp/tmp.$file.$tail && rm $target/child/$tail.$file || rm $target/child/$tail.$file &");
+	    system("touch $target/child/$tail.$file.t && grep $tail $target/read/$file > $target/tmp/tmp.$file.$tail && rm $target/child/$tail.$file.t || rm $target/child/$tail.$file.t&");
 	}else{
-	    system("touch $target/child/$tail.$file && $catcmd $target/read/$file | grep $tail > $target/tmp/tmp.$file.$tail && rm $target/child/$tail.$file || rm $target/child/$tail.$file &");
+	    system("touch $target/child/$tail.$file.t && $catcmd $target/read/$file | grep $tail > $target/tmp/tmp.$file.$tail && rm $target/child/$tail.$file.t || rm $target/child/$tail.$file.t &");
 	}
 	&waitFork;
 	&log("searching $rhead in $file");
 	if ($catcmd eq "cat"){
-	    system("touch $target/child/$rhead.$file && grep $rhead $target/read/$file > $target/tmp/tmp.$file.$rhead && rm $target/child/$rhead.$file || rm $target/child/$rhead.$file &");
+	    system("touch $target/child/$rhead.$file.rh && grep $rhead $target/read/$file > $target/tmp/tmp.$file.$rhead && rm $target/child/$rhead.$file.rh || rm $target/child/$rhead.$file.rh &");
 	}else{
-	    system("touch $target/child/$rhead.$file && $catcmd $target/read/$file | grep $rhead > $target/tmp/tmp.$file.$rhead && rm $target/child/$rhead.$file || rm $target/child/$rhead.$file &");
+	    system("touch $target/child/$rhead.$file.rh && $catcmd $target/read/$file | grep $rhead > $target/tmp/tmp.$file.$rhead && rm $target/child/$rhead.$file.rh || rm $target/child/$rhead.$file.rh &");
 	}
 	&waitFork;
 	&log("searching $rtail in $file");
 	if ($catcmd eq "cat"){
-	    system("touch $target/child/$rtail.$file && grep $rtail $target/read/$file > $target/tmp/tmp.$file.$rtail && rm $target/child/$rtail.$file || rm $target/child/$rtail.$file &");
+	    system("touch $target/child/$rtail.$file.rt && grep $rtail $target/read/$file > $target/tmp/tmp.$file.$rtail && rm $target/child/$rtail.$file.rt ||rm  $target/child/$rtail.$file.rt &");
 	}else{
-	    system("touch $target/child/$rtail.$file && $catcmd $target/read/$file | grep $rtail > $target/tmp/tmp.$file.$rtail && rm $target/child/$rtail.$file || rm $target/child/$rtail.$file &");
+	    system("touch $target/child/$rtail.$file.rt && $catcmd $target/read/$file | grep $rtail > $target/tmp/tmp.$file.$rtail && rm $target/child/$rtail.$file.rt || rm $target/child/$rtail.$file.rt &");
 	}
     }
     &joinAfterGrep;
@@ -323,12 +334,14 @@ foreach $chr (sort readdir(DIR)){
 		    $maphead{$row[1]}{$row[2]}{$row[3]} = $row[4];
 		    $mhc{$row[1]}{$row[2]} ++;
 		}
-		if ($wt{$row[1]}{$row[2]} eq ""){
+		if ($wt{"$row[1] $row[2] f"} eq ""){
 		    $wt = substr($seq, $row[2] - $pos + 500 - 21, 40);
 		    if (length($wt) == 40 or $wt !~ /NN|\ /){
 			$cwt = complement($wt);
-			$wt{$row[1]}{$row[2]}{f} = $wt;
-			$wt{$row[1]}{$row[2]}{r} = $cwt;
+			$wt{"$row[1] $row[2] f"} = $wt;
+			$wt{"$row[1] $row[2] r"} = $cwt;
+			$wtcount{$wt} = 0;
+			$wtcount{$cwt} = 0;
 		    }
 		}
 	    }else{
@@ -336,12 +349,14 @@ foreach $chr (sort readdir(DIR)){
 		    $maptail{$row[1]}{$row[2]}{$row[3]} = $row[4];
 		    $mtc{$row[1]}{$row[2]} ++;
 		}
-		if ($wt{$row[1]}{$row[2]} eq ""){
+		if ($wt{"$row[1] $row[2] f"} eq ""){
 		    $wt = substr($seq, $row[2] -$pos + 500 - 21, 40);
 		    if (length($wt) == 40 or  $wt !~ /NN|\ /){
 			$cwt = complement($wt);
-			$wt{$row[1]}{$row[2]}{f} = $wt;
-			$wt{$row[1]}{$row[2]}{r} = $cwt;
+			$wt{"$row[1] $row[2] f"} = $wt;
+			$wt{"$row[1] $row[2] r"} = $cwt;
+			$wtcount{$wt} = 0;
+			$wtcount{$cwt} = 0;
 		    }
 		}
 	    }
@@ -350,34 +365,72 @@ foreach $chr (sort readdir(DIR)){
     }
 }
 
-if ($nogenotype != 1){
-    system("rm $target/tmp/wt.* > /dev/null 2>&1");
+if (! $nogenotype){
+    &log("Counting wild type reads.");
     opendir(DIR, "$target/read");
     foreach $file (sort readdir(DIR)){
 	next if $file =~ /^\./;
+	&log("Processing $file");
 	if ($file =~ /.gz$/){
-	    $catcmd = "zcat";
+	    open(IN, "zcat $target/read/$file |");
+	    $fastq = 1;
 	}elsif($file =~ /.bz2$/){
-	    $catcmd = "bzcat";
+	    open(IN, "bzcat $target/read/$file |");
+	    $fastq = 1;
 	}elsif($file =~ /.xz$/){
-	    $catcmd = "xzcat";
+	    open(IN, "xzcat $target/read/$file |");
+	    $fastq = 1;
+	}elsif($file =~ /.fastq$|.fq$/){
+	    open(IN, "$target/read/$file");
+	    $fastq = 1;
 	}else{
-	    $catcmd = "cat";
+	    open(IN, "$target/read/$file");
 	}
-	foreach $chr (sort keys %wt){
-	    foreach $pos (sort bynumber keys %{$wt{$chr}}){
-		foreach $dir (sort bynumber keys %{$wt{$chr}{$pos}}){
-		    $query = $wt{$chr}{$pos}{$dir};
-		    next if $query eq "" or $query =~ /NNNN/;
-		    &waitFork;
-		    &log("searching wt $query in $file");
-		    system("touch $target/child/wt.$chr.$pos.$dir && $catcmd $target/read/$file |grep $query >> $target/tmp/wt.$chr.$pos.$dir && rm $target/child/wt.$chr.$pos.$dir || rm $target/child/wt.$chr.$pos.$dir &");
+	while(<IN>){
+	    chomp;
+	    if ($fastq){
+		$count++;
+		if ($count == 2){
+		    $complement = &complement($_);
+		    for($i = 0; $i <= length($_) - 40; $i++){
+			$fragment = substr($_, $i, 40);
+			if (defined $wtcount{$fragment}){
+			    $wtcount{$fragment}++;
+			}
+			if ($file !~/sort_uniq/){
+			    $fragment = substr($complement, $i, 40);
+			    if (defined $wtcount{$fragment}){
+				$wtcount{$fragment}++;
+			    }
+			}
+		    }
+		    $reads ++;
+		    if ($reads % 1000000 == 0){
+			&log("Counting wild type. $reads reads processed.");
+		    }
+		}elsif($count == 4){
+		    $count = 0;
+		}
+	    }else{
+		for($i = 0; $i <= length($_) - 40; $i++){
+		    $fragment = substr($_, $i, 40);
+		    if (defined $wtcount{$fragment}){
+			$wtcount{$fragment}++;
+		    }
+		    if ($file !~/sort_uniq/){
+			$fragment = substr($complement, $i, 40);
+			if (defined $wtcount{$fragment}){
+			    $wtcount{$fragment}++;
+			}
+		    }
+		}
+		$reads ++;
+		if ($reads % 1000000 == 0){
+		    &log("Counting wild type. $reads reads processed.");
 		}
 	    }
 	}
     }
-    closedir(DIR);
-    &joinAfterGrep;
 }
 
 open(OUT, "> $target/tif_result.$head.$tail");
@@ -393,22 +446,23 @@ foreach $chr (sort keys %maphead){
                     $tsd_tail =  substr($downstream, 0, $tsd_size);
 		    if ($tsd_head eq $tsd_tail){
 			if ($nogenotype){
-			    print STDERR "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
-			    print OUT "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
+			    my $output = "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\n";
+			    print STDERR $output;
+			    print OUT $output;
 			}else{
-			    $count = 0;
-			    open(WT, "cat $target/tmp/wt.$chr.$pos.* |");
-			    while(<WT>){
-				$count++;
-			    }
-			    close(WT);
-			    if ($count > 0){
-				$genotype = "Hetero";
+			    $wt = 0;
+			    $fragment = $wt{"$chr $pos f"};
+			    $wt += $wtcount{$fragment} if $fragment ne "";
+			    $fragment = $wt{"$chr $pos r"};
+			    $wt += $wtcount{$fragment} if $fragment ne "";
+			    if ($wt > 0){
+				$genotype = "H";
 			    }else{
-				$genotype = "Homo";
+				$genotype = "M";
 			    }
-			    print STDERR "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\t$count\t$genotype\n";
-			    print OUT "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\t$count\t$genotype\n";
+			    my $output = "$chr\t$pos\t$i\t$tsd_size\t$tsd_head\t$direction\t$upstream\t$downstream\t$mhc{$chr}{$pos}\t$mtc{$chr}{$i}\t$wt\t$genotype\n";
+			    print STDERR $output;
+			    print OUT $output;
 			}
 		    }
 		}
@@ -430,7 +484,6 @@ if ($nogenotype){
 ##source=<PROGRAM=tif.pl,target=$target,reference=$ref>
 ##INFO=<ID=SVTYPE,Number=1,Type=String,Description=\"Type of structural variant\">
 ##INFO=<ID=MEINFO,Number=9,Type=String,Description=\"Movile element info of the form ME_HEAD_SEQ,ME_TAIL_SEQ,JUNCTION_POS_OF_HEAD,JUNCTION_POS_OF_TAIL,TSD_SIZE,TSD_SEQUENCE,DIRECTION,COUNT_OF_READS_WITH_JUNCTION_OF_HEAD,COUNT_OF_READS_WITH_JUNCTION_OF_TAIL\">
-##INFO=<ID=GT,Number=1,Type=String,Description=\"Genotype\">
 ##ALT=<ID=INS,Description=\"Insertion of a mobile element\">
 ##created=<TIMESTAMP=\"$timestamp\">
 #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n";
@@ -438,9 +491,11 @@ if ($nogenotype){
     print OUT "##fileformat=VCFv4.3
 ##fileDate=$filedate
 ##source=<PROGRAM=tif.pl,target=$target,reference=$ref>
+##INFO=<ID=GT,Number=1,Type=String,Description=\"Genotype\">
+##INFO=<ID=AF,Number=.,Type=Float,Description=\"Allele Frequency\">
+##INFO=<ID=DP,Number=1,Type=Integer,Description=\"Approximate read depth\">
 ##INFO=<ID=SVTYPE,Number=1,Type=String,Description=\"Type of structural variant\">
 ##INFO=<ID=MEINFO,Number=9,Type=String,Description=\"Movile element info of the form ME_HEAD_SEQ,ME_TAIL_SEQ,JUNCTION_POS_OF_HEAD,JUNCTION_POS_OF_TAIL,TSD_SIZE,TSD_SEQUENCE,DIRECTION,COUNT_OF_READS_WITH_JUNCTION_OF_HEAD,COUNT_OF_READS_WITH_JUNCTION_OF_TAIL\">
-##INFO=<ID=GT,Number=1,Type=String,Description=\"Genotype\">
 ##ALT=<ID=INS,Description=\"Insertion of a mobile element\">
 ##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">
 ##FORMAT=<ID=AD,Number=.,Type=String,Description=\"Allelic depths for the reference and alternate alleles in the order listed\">
@@ -711,8 +766,9 @@ sub getTimestamp{
 
 sub log{
     my $comment = shift;
-    print STDERR &getTimestamp() . " $comment\n";
-    print LOG    &getTimestamp() . " $comment\n";
+    $comment = &getTimestamp() . " $comment\n";
+    print STDERR $comment;
+    print LOG    $comment;
 }
 
 sub bynumber{
