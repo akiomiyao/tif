@@ -30,13 +30,21 @@ $ fastq-dump --split-files SRR556175
 $ cd git
 $ wget https://rapdb.dna.affrc.go.jp/download/archive/irgsp1/IRGSP-1.0_genome.fasta.gz
 $ perl tif.pl IRGSP-1.0_genome.fasta.gz ttm5 TGTTAAATATATATACA TTGCAAGTTAGTTAAGA
+or
+$ perl tif.pl ref=IRGSP-1.0_genome.fasta.gz,target=ttm5,head=TGTTAAATATATATACA,tail=TTGCAAGTTAGTTAAGA (New format for options)
 </pre>
 <p>'<a href = "https://doi.org/10.1186/1471-2229-10-175" target = "_blank">ttm5</a>' is one of the <i>Tos17</i> insertion line (line name: ND6834). The NGS data of ttm5 was acquired for <a href = "https://doi.org/10.1093/pcp/pcr172" target = "_blank">the analysis of somaclonal variation</a>. ND6834 was harvested as a regenerated individual in October 1998. The individual was regenerated from liquid culture in N6 medium containing 2,4-dichlorophenoxyacetic acid at a concentration of 1 mg/L until March 1998 from the Nipponbare calus induced in October 1997. The individual analyzed by NGS is the M<sub>4</sub> generation, two generations after the harvested seeds. <a href = "https://www.ncbi.nlm.nih.gov/sra/?term=SRR556174" target = "_blank">SRR556174</a> and <a href = "https://www.ncbi.nlm.nih.gov/sra/?term=SRR556175" target = "_blank">SRR556175</a> are run data of ttm5 by Illumina Hiseq2000 sequencing system.
 <p>without argument returns how to use tif.pl.<br>
 $ perl tif.pl<br>
 '$' at the head of line indicates prompt of terminal window.<br>
 <p>$ perl tif.pl reference target_directory 5'-end_of_TE_sequence 3'-end_of_TE_sequence<br>
+or<br>
+$ perl tif.pl ref=reference,target=target_directory,head=5'-end_of_TE_sequence,tail=3'-end_of_TE_sequence<br><br>
+
+In the new option format, space after commas is not allowed.<br><br> 
+
 For analysis of rice, IRGSP-1.0_genome.fasta.gz is the reference genome sequence.<br>
+NGS fastq files should be seved in target/read directory<br>
 <i>Tos17</i> 5'-end (Head) sequence: TGTTAAATATATATACA<br>
 <i>Tos17</i> 3'-end (Tail) sequence: TTGCAAGTTAGTTAAGA<br>
 <p>Result of tif.pl is saved in target (ttm5) directory.
@@ -55,7 +63,6 @@ drwxrwxr-x  2 miyao miyao  36864 Jan  3 19:36 tmp/
 </pre>
 <p>tif_head_seq.tail_seq.vcf is the result with vcf format.<br>
 tif_grep.head_seq.tail_seq is the list of short reads containing head_seq or tail_seq.<br>
-tif_selected.head_seq.tail_seq is the list of short reads which are not present in the reference genome sequence.<br>
 tif_log.head_seq.tail_seq is the log of run.<br>
 tif_result.head_seq.tail_seq is the result of tif analysis.<br><br>
 <b>Result with vcf format</b>
