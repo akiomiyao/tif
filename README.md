@@ -39,6 +39,11 @@ Web page: https://akiomiyao.github.io/tif/
      tif_flanking outputs flanking sequence of transposon insertion in fasta format.  
      Run without argument, help will be shown.  
 - TIF is a powerful tool.  
+     Genomic impact of stress-induced transposable element mobility in *Arabidopsis*  
+     David Roquis, Marta Robertson, Liang Yu, Michael Thieme, Magdalena Julkowska, Etienne Bucher  
+     Nucleic Acids Res. 49(18):10431-10447 (2021)  
+     https://doi.org/10.1093/nar/gkab828  
+     
      Sensitive detection of pre-integration intermediates of long terminal repeat retrotransposons in crop plants  
      Jungnam Cho, Matthias Benoit, Marco Catoni, Hajk-Georg Drost, Anna Brestovitsky, Matthijs Oosterbeek, Jerzy Paszkowski  
      Nature Plants, 5:26–33 (2019)  
