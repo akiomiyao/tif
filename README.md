@@ -120,10 +120,20 @@ For *Hi* of *Arabidopsis thaliana*
       Head of Hi: GAGGGATCATCTCTTGTGTC
       Tail of Hi: GACTGGCCAGACGATTATTC
       Size of TSD: 9
-      doi: 10.1038/emboj.2013.169
+      doi: https://doi.org/10.1038/emboj.2013.169
       fastq: DRR001193 (ddm1 mutant)
       reference: https://www.arabidopsis.org/download_files/Genes/TAIR10_genome_release/TAIR10_chromosome_files/TAIR10_chr_all.fas
 
+For *ONSEN* of *Arabidopsis thaliana*
+
+      Head of ONSEN: TGTTGAAAGTTAAACTTGAT
+      Tail of OMSEN: AAAAGAATTTTACTCTAACA
+      Size of TSD: 5
+      ONSEN accessions: AT1G11265, AT1G21945, AT1G48710, AT1G58140, AT3G32415, AT3G59720, AT3G61330, AT5G13205
+      doi: https://doi.org/10.1093/nar/gkab828
+      fastq: https://zenodo.org/record/5052019#.Yd-Fu_7P2Ul
+      reference: https://www.arabidopsis.org/download_files/Genes/TAIR10_genome_release/TAIR10_chromosome_files/TAIR10_chr_all.fas
+      
 ### To obtain short read data
 
 Download sra tool kit from  
