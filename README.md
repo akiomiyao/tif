@@ -127,7 +127,7 @@ For *Hi* of *Arabidopsis thaliana*
 For *ONSEN* of *Arabidopsis thaliana*
 
       Head of ONSEN: TGTTGAAAGTTAAACTTGAT
-      Tail of OMSEN: AAAAGAATTTTACTCTAACA
+      Tail of ONSEN: AAAAGAATTTTACTCTAACA
       Size of TSD: 5
       ONSEN accessions: AT1G11265, AT1G21945, AT1G48710, AT1G58140, AT3G32415, AT3G59720, AT3G61330, AT5G13205
       doi: https://doi.org/10.1093/nar/gkab828
