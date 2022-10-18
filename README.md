@@ -39,6 +39,11 @@ Web page: https://akiomiyao.github.io/tif/
      tif_flanking outputs flanking sequence of transposon insertion in fasta format.  
      Run without argument, help will be shown.  
 - TIF is a powerful tool.  
+     Eigo Fukai, Manabu Yoshikawa, Niraj Shah, Niels Sandal, Akio Miyao, Seijiro Ono, Hideki Hirakawa, Turgut Yigit Akyol, Yosuke Umehara, Ken-Ichi Nonomura, Jens Stougaard, Hirohiko Hirochika, Makoto Hayashi, Shusei Sato, Stig Uggerhøj Andersen, Keiichi Okazaki    
+     Widespread and transgenerational retrotransposon activation in inter- and intraspecies recombinant inbred populations of *Lotus japonicus.*  
+     Plant J. 111(5):1397-1410 (2022)  
+     https://doi.org/10.1111/tpj.15896  
+
      Genomic impact of stress-induced transposable element mobility in *Arabidopsis*  
      David Roquis, Marta Robertson, Liang Yu, Michael Thieme, Magdalena Julkowska, Etienne Bucher  
      Nucleic Acids Res. 49(18):10431-10447 (2021)  
@@ -253,7 +258,7 @@ The tif_extended.pl returns both tif.fasta and tif.position files in the tif dir
 ### Citing TIF
 
 - Cite this article as: Nakagome M, Solovieva E, Takahashi A, Yasue H, Hirochika H, Miyao A (2014) Transposon Insertion Finder (TIF): a novel program for detection of de novo transpositions of transposable elements. BMC Bioinformatics 5:71.  
-- doi:10.1186/1471-2105-15-71
+- https://doi.org/10.1186/1471-2105-15-71
 - https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-15-71
 
 
